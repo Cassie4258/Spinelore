@@ -24,7 +24,7 @@ source: { type: 'base64', media_type: mediaType || 'image/jpeg', data: imageBase
 },
 {
 type: 'text',
-text: `This is a photo of a book (cover, spine, or title page). Extract what you can see and respond with ONLY a JSON object, no other text, no markdown fences, with these keys (use empty string if not visible/unknown): title, author, publisher, pub_year, isbn, binding. Do not guess or invent information that is not visibly present in the image.`,
+text: `This is a photo of a book (cover, spine, or title page). Extract what you can see and respond with ONLY a JSON object, no other text, no markdown fences, with these keys (use empty string if not visible/unknown): title, author, illustrator, publisher, pub_year, isbn, binding, genre, condition. For genre give a short label (e.g. Poetry, Novel, History, Philosophy, Children's). For condition, if the photo shows the physical book, give a standard bookseller grade (Fine, Near Fine, Very Good, Good, Fair, Poor) based on visible wear; otherwise empty string. Do not guess or invent information that is not visibly present in the image.`,
 },
 ],
 },

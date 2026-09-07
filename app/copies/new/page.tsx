@@ -44,6 +44,8 @@ const [seriesChecked, setSeriesChecked] = useState(false);
 const [form, setForm] = useState({
 title: '',
 author: '',
+illustrator: '',
+genre: '',
 publisher: '',
 pub_year: '',
 isbn: '',
@@ -89,9 +91,10 @@ const suggestions = await res.json();
 const filled: string[] = [];
 setForm(f => {
 const next = { ...f };
-for (const key of ['title', 'author', 'publisher', 'pub_year', 'isbn', 'binding']) {
-if (!next[key as keyof typeof next] && suggestions[key]) {
-(next as any)[key] = suggestions[key];
+for (const key of ['title', 'author', 'illustrator', 'publisher', 'pub_year', 'isbn', 'binding', 'genre', 'condition_book']) {
+const sKey = key === 'condition_book' ? 'condition' : key;
+if (!next[key as keyof typeof next] && suggestions[sKey]) {
+(next as any)[key] = suggestions[sKey];
 filled.push(key);
 }
 }
@@ -182,7 +185,7 @@ setError(null);
 try {
 const { data: work, error: workErr } = await supabase
 .from('works')
-.insert({ title: form.title })
+.insert({ title: form.title, genre: form.genre || null })
 .select()
 .single();
 if (workErr) throw workErr;
@@ -198,6 +201,10 @@ work_id: work.id,
 author_id: author.id,
 role: 'author',
 });
+}
+if (form.illustrator.trim()) {
+const { data: ill } = await supabase.from('authors').insert({ name: form.illustrator }).select().single();
+if (ill) await supabase.from('work_contributors').insert({ work_id: work.id, author_id: ill.id, role: 'illustrator' });
 }
 const { data: edition, error: editionErr } = await supabase
 .from('editions')
@@ -329,6 +336,18 @@ onChange={e => update('title', e.target.value)} />
 <label style={labelStyle}>AUTHOR</label>
 <input style={inputStyle} value={form.author}
 onChange={e => update('author', e.target.value)} />
+</div>
+<div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+<div>
+<label style={labelStyle}>ILLUSTRATOR</label>
+<input style={inputStyle} value={form.illustrator}
+onChange={e => update('illustrator', e.target.value)} />
+</div>
+<div>
+<label style={labelStyle}>GENRE</label>
+<input style={inputStyle} value={form.genre}
+onChange={e => update('genre', e.target.value)} placeholder="Poetry, Novel, History…" />
+</div>
 </div>
 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
 <div>

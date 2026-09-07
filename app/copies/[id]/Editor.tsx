@@ -7,13 +7,13 @@ const lbl = { fontSize: '0.7rem', color: '#8a7a5c', letterSpacing: '0.1em', marg
 const btn = { background: 'transparent', border: '1px solid #4a3d2c', color: '#c4b490', padding: '0.5rem 1rem', cursor: 'pointer', fontFamily: "'EB Garamond', serif", fontSize: '0.85rem' };
 const primary = { ...btn, background: '#4a2318', border: '1px solid #6b3524', color: '#e8dcc0' };
 const section = { border: '1px solid #3a2f20', padding: '1.25rem', marginBottom: '2rem' };
-export default function Editor({ copy, edition, work, authorId, authorName, latest, aiNotes }: any) {
+export default function Editor({ copy, edition, work, authorId, authorName, illustratorId, illustratorName, latest, aiNotes }: any) {
 const router = useRouter();
 const [mode, setMode] = useState<'view' | 'edit'>('view');
 const [busy, setBusy] = useState<string | null>(null);
 const [msg, setMsg] = useState<string | null>(null);
 const [f, setF] = useState({
-title: work.title ?? '', author: authorName ?? '', genre: work.genre ?? '',
+title: work.title ?? '', author: authorName ?? '', illustrator: illustratorName ?? '', genre: work.genre ?? '',
 publisher: edition.publisher ?? '', pub_year: edition.pub_year ?? '', edition_label: edition.edition_label ?? '',
 printing_number: edition.printing_number ?? '', issue_state: edition.issue_state ?? '', isbn: edition.isbn ?? '', binding: edition.binding ?? '',
 condition_book: copy.condition_book ?? '', condition_jacket: copy.condition_jacket ?? '', defects: copy.defects ?? '', provenance: copy.provenance ?? '',
@@ -31,6 +31,13 @@ if (authorId) await supabase.from('authors').update({ name: f.author }).eq('id',
 else {
 const { data: a } = await supabase.from('authors').insert({ name: f.author }).select().single();
 if (a) await supabase.from('work_contributors').insert({ work_id: work.id, author_id: a.id, role: 'author' });
+}
+}
+if (f.illustrator.trim()) {
+if (illustratorId) await supabase.from('authors').update({ name: f.illustrator }).eq('id', illustratorId);
+else {
+const { data: a } = await supabase.from('authors').insert({ name: f.illustrator }).select().single();
+if (a) await supabase.from('work_contributors').insert({ work_id: work.id, author_id: a.id, role: 'illustrator' });
 }
 }
 await supabase.from('editions').update({
@@ -132,6 +139,7 @@ return (
 <div style={section}>
 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
 <F k="title" label="TITLE" wide /><F k="author" label="AUTHOR" wide />
+<F k="illustrator" label="ILLUSTRATOR" wide />
 <F k="publisher" label="PUBLISHER" /><F k="pub_year" label="YEAR" type="number" />
 <F k="edition_label" label="EDITION" /><F k="printing_number" label="PRINTING" />
 <F k="issue_state" label="ISSUE / STATE" /><F k="isbn" label="ISBN" />

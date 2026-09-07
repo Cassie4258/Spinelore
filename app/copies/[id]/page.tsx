@@ -37,6 +37,7 @@ const ed = c.editions ?? {};
 const w = ed.works ?? {};
 const contributors = (w.work_contributors ?? []) as any[];
 const authorEntry = contributors.find((x: any) => x.role === 'author');
+const illEntry = contributors.find((x: any) => x.role === 'illustrator');
 const byRole = (r: string) => contributors.filter(x => x.role === r).map(x => x.authors?.name).filter(Boolean).join(', ');
 const workId = ed.work_id;
 const series = await getSeries(workId);
@@ -58,7 +59,7 @@ return (
 ))}
 </div>
 )}
-<Editor copy={c} edition={ed} work={w} authorId={authorEntry?.authors?.id ?? null} authorName={authorEntry?.authors?.name ?? ''} latest={latest ?? null} aiNotes={c.ai_notes ?? null} />
+<Editor copy={c} edition={ed} work={w} authorId={authorEntry?.authors?.id ?? null} authorName={authorEntry?.authors?.name ?? ''} illustratorId={illEntry?.authors?.id ?? null} illustratorName={illEntry?.authors?.name ?? ''} latest={latest ?? null} aiNotes={c.ai_notes ?? null} />
 {series?.sets && (
 <div style={{ border: '1px solid #3a2f20', padding: '1.25rem', marginBottom: '2rem' }}>
 <div style={label}>SERIES / SET</div>
