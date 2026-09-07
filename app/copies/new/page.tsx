@@ -140,6 +140,7 @@ headers: { 'Content-Type': 'application/json' },
 body: JSON.stringify({
 title: form.title,
 author: form.author,
+illustrator: form.illustrator,
 publisher: form.publisher,
 pub_year: form.pub_year,
 binding: form.binding,
@@ -149,6 +150,9 @@ isbn: form.isbn,
 dust_jacket: form.dust_jacket,
 condition_jacket: form.condition_jacket,
 volume_number: form.volume_number,
+edition_label: form.edition_label,
+printing_number: form.printing_number,
+issue_state: form.issue_state,
 }),
 });
 const data = await res.json();
@@ -179,7 +183,7 @@ setEnriching(true);
 try {
 const res = await fetch('/api/enrich', {
 method: 'POST', headers: { 'Content-Type': 'application/json' },
-body: JSON.stringify({ title: f0.title, author: f0.author, illustrator: f0.illustrator, publisher: f0.publisher, pub_year: f0.pub_year, binding: f0.binding, isbn: f0.isbn, condition_book: f0.condition_book, signed: f0.signed, volume_number: f0.volume_number, total_volumes: f0.total_volumes }),
+body: JSON.stringify({ title: f0.title, author: f0.author, illustrator: f0.illustrator, publisher: f0.publisher, pub_year: f0.pub_year, binding: f0.binding, isbn: f0.isbn, condition_book: f0.condition_book, signed: f0.signed, volume_number: f0.volume_number, total_volumes: f0.total_volumes, edition_label: f0.edition_label, printing_number: f0.printing_number, issue_state: f0.issue_state }),
 });
 const d = await res.json();
 if (res.ok) {

@@ -10,7 +10,7 @@ book.illustrator && `Illustrator: ${book.illustrator}`,
 book.publisher && `Publisher: ${book.publisher}`,
 book.pub_year && `Publication year: ${book.pub_year}`,
 book.edition_label && `Edition statement: ${book.edition_label}`,
-book.printing_number && `Printing: ${book.printing_number}${String(book.printing_number) === '1' ? ' (FIRST PRINTING)' : ''}`,
+book.printing_number && `Printing: ${book.printing_number}${String(book.printing_number).trim() === '1' ? ' — FIRST PRINTING' : ' — a stated later printing, NOT the first'}`,
 book.issue_state && `Issue / state: ${book.issue_state}`,
 book.binding && `Binding: ${book.binding}`,
 book.condition_book && `Condition of book: ${book.condition_book}`,
@@ -32,6 +32,8 @@ After searching, respond with ONLY a JSON object (no markdown fences, no other t
 - "confidence": "low", "medium", or "high" — low if few or no relevant comparables were found, high if there are multiple solid, closely matching comparables
 - "reasoning": AT MOST 120 words. Be concise: name the comparables that mattered and how printing, jacket and condition moved the number. Do not list every listing you saw.
 - "sources": at most 5 objects with short "title" and "url"
+The printing status above is authoritative — it was read from the copyright page or entered by the owner. If a printing is given you MUST NOT describe it as unknown or unspecified; price that exact printing. Note that "First Edition" with a printing above 1 means a later printing of the first edition, which is worth far less than a true first printing but often more than a much later one.
+
 Weight these correctly, because they dominate value for collectible books:
 - PRINTING: a stated first printing of a significant 20th-century book is worth many times a later printing of the same year. Do not treat a first printing as an unspecified printing. Conversely a Book Club Edition is worth a small fraction of a trade first.
 - DUST JACKET: for 20th-century firsts the jacket is frequently the majority of the value. A first printing WITH jacket and the same book WITHOUT jacket are not comparable; only compare like with like, and say which you used.
