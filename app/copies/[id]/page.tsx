@@ -25,15 +25,15 @@ if (!workId) return [];
 const { data } = await supabase.from('set_members').select('sequence_number, sets ( id, name, kind, publisher )').eq('work_id', workId);
 return (data ?? []) as any[];
 }
-const label = { fontSize: '0.7rem', color: '#8a7a5c', letterSpacing: '0.1em', marginBottom: '0.2rem' };
-const value = { color: '#e8dcc0', fontSize: '1rem', marginBottom: '1rem' };
+const label = { fontSize: '0.7rem', color: '#6E6552', letterSpacing: '0.1em', marginBottom: '0.2rem' };
+const value = { color: '#2E2A22', fontSize: '1rem', marginBottom: '1rem' };
 function Field({ name, val }: { name: string; val: any }) {
 if (val === null || val === undefined || val === '' || val === false) return null;
 return (<div><div style={label}>{name}</div><div style={value}>{val === true ? 'Yes' : String(val)}</div></div>);
 }
 export default async function CopyDetail({ params }: { params: { id: string } }) {
 const c = await getCopy(params.id);
-if (!c) return <p style={{ color: '#8a7a5c' }}>This volume could not be found.</p>;
+if (!c) return <p style={{ color: '#6E6552' }}>This volume could not be found.</p>;
 const ed = c.editions ?? {};
 const w = ed.works ?? {};
 const contributors = (w.work_contributors ?? []) as any[];
@@ -47,10 +47,10 @@ const latest = estimates[0];
 const fmt = (n: any) => n == null ? null : `$${Number(n).toLocaleString()}`;
 return (
 <div>
-<a href="/" style={{ color: '#8a7a5c', fontSize: '0.85rem', textDecoration: 'none' }}>← Back to Library</a>
-<h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 500, fontSize: '2rem', color: '#e8dcc0', margin: '1rem 0 0.25rem' }}>{w.title ?? 'Untitled'}</h2>
-{w.subtitle && <p style={{ color: '#c4b490', fontStyle: 'italic', margin: '0 0 0.5rem' }}>{w.subtitle}</p>}
-<p style={{ color: '#8a7a5c', margin: '0 0 2rem' }}>{[byRole('author'), ed.publisher, ed.pub_year].filter(Boolean).join(' · ')}</p>
+<a href="/" style={{ color: '#6E6552', fontSize: '0.85rem', textDecoration: 'none' }}>← Back to Library</a>
+<h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 500, fontSize: '2rem', color: '#2E2A22', margin: '1rem 0 0.25rem' }}>{w.title ?? 'Untitled'}</h2>
+{w.subtitle && <p style={{ color: '#4A4335', fontStyle: 'italic', margin: '0 0 0.5rem' }}>{w.subtitle}</p>}
+<p style={{ color: '#6E6552', margin: '0 0 2rem' }}>{[byRole('author'), ed.publisher, ed.pub_year].filter(Boolean).join(' · ')}</p>
 {c.copy_photos?.length > 0 && (
 <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '2rem' }}>
 {c.copy_photos.map((p: any, i: number) => (
@@ -66,8 +66,8 @@ return (
 <div style={label}>SETS &amp; SERIES</div>
 {series.map((m: any, i: number) => (
 <div key={i} style={{ marginBottom: i < series.length - 1 ? '0.75rem' : 0 }}>
-<div style={{ fontSize: '0.65rem', color: '#8a7a5c', letterSpacing: '0.1em' }}>{(KIND_LABEL[m.sets?.kind] ?? 'GROUPING').toUpperCase()}</div>
-<a href={`/collections/${m.sets?.id}`} style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '1.2rem', color: '#e8dcc0', textDecoration: 'none' }}>
+<div style={{ fontSize: '0.65rem', color: '#6E6552', letterSpacing: '0.1em' }}>{(KIND_LABEL[m.sets?.kind] ?? 'GROUPING').toUpperCase()}</div>
+<a href={`/collections/${m.sets?.id}`} style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '1.2rem', color: '#2E2A22', textDecoration: 'none' }}>
 {m.sets?.name}{seqLabel(m.sets?.kind, m.sequence_number) && ` (${seqLabel(m.sets?.kind, m.sequence_number)})`}
 </a>
 </div>

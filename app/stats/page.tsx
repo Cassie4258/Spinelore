@@ -37,11 +37,11 @@ const x = 30 + i * (barWidth + gap);
 const y = height - 40 - barHeight;
 return (
 <g key={d.label}>
-<rect x={x} y={y} width={barWidth} height={barHeight} fill="#b8923f" opacity={0.85} />
-<text x={x + barWidth / 2} y={height - 22} fill="#8a7a5c" fontSize="11" textAnchor="middle" fontFamily="EB Garamond, serif">
+<rect x={x} y={y} width={barWidth} height={barHeight} fill="#3D5245" opacity={0.9} />
+<text x={x + barWidth / 2} y={height - 22} fill="#6E6552" fontSize="11" textAnchor="middle" fontFamily="EB Garamond, serif">
 {d.label}
 </text>
-<text x={x + barWidth / 2} y={y - 6} fill="#c4b490" fontSize="11" textAnchor="middle" fontFamily="EB Garamond, serif">
+<text x={x + barWidth / 2} y={y - 6} fill="#3D5245" fontSize="11" textAnchor="middle" fontFamily="EB Garamond, serif">
 {money ? (d.value >= 1000 ? `$${(d.value / 1000).toFixed(1)}k` : `$${Math.round(d.value)}`) : String(d.value)}
 </text>
 </g>
@@ -85,11 +85,11 @@ flex: '1 1 140px',
 const statNumber = {
 fontFamily: "'Cormorant Garamond', serif",
 fontSize: '2rem',
-color: '#e8dcc0',
+color: '#2E2A22',
 };
 const statLabel = {
 fontSize: '0.75rem',
-color: '#8a7a5c',
+color: '#6E6552',
 letterSpacing: '0.08em',
 marginTop: '0.3rem',
 };
@@ -97,7 +97,7 @@ return (
 <div>
 <h2 style={{
 fontFamily: "'Cormorant Garamond', serif", fontStyle: 'italic',
-fontWeight: 500, fontSize: '1.8rem', color: '#e8dcc0', margin: '0 0 1.5rem',
+fontWeight: 500, fontSize: '1.8rem', color: '#2E2A22', margin: '0 0 1.5rem',
 }}>
 Collection Intelligence
 </h2>
@@ -123,7 +123,7 @@ Collection Intelligence
 </div>
 {publisherData.length > 0 && (
 <div style={{ marginBottom: '2.5rem' }}>
-<h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '1.2rem', color: '#c4b490', marginBottom: '1rem' }}>
+<h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '1.2rem', color: '#4A4335', marginBottom: '1rem' }}>
 Value by Publisher
 </h3>
 <BarChart data={publisherData} />
@@ -131,14 +131,14 @@ Value by Publisher
 )}
 {decadeData.length > 0 && (
 <div>
-<h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '1.2rem', color: '#c4b490', marginBottom: '1rem' }}>
+<h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '1.2rem', color: '#4A4335', marginBottom: '1rem' }}>
 Volumes by Decade Published
 </h3>
 <BarChart data={decadeData} money={false} />
 </div>
 )}
 {totalVolumes === 0 && (
-<p style={{ color: '#8a7a5c' }}>Add some books to the archive to see stats here.</p>
+<p style={{ color: '#6E6552' }}>Add some books to the archive to see stats here.</p>
 )}
 </div>
 );

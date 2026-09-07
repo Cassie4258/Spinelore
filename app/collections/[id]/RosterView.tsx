@@ -3,7 +3,7 @@ import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../../lib/supabase';
 import { KIND_UNIT, completeness, matchingNote, seqLabel } from '../../lib/groupings';
-const btn = { background: 'transparent', border: '1px solid #4a3d2c', color: '#c4b490', padding: '0.5rem 1rem', cursor: 'pointer', fontFamily: "'EB Garamond', serif", fontSize: '0.85rem' };
+const btn = { background: 'transparent', border: '1px solid #4a3d2c', color: '#4A4335', padding: '0.5rem 1rem', cursor: 'pointer', fontFamily: "'EB Garamond', serif", fontSize: '0.85rem' };
 function norm(s: string) { return (s || '').toLowerCase().replace(/^(the|a|an)\s+/, '').replace(/[^a-z0-9 ]/g, '').trim(); }
 export default function RosterView({ set, ownedTitles }: any) {
 const router = useRouter();
@@ -37,38 +37,38 @@ router.refresh();
 if (roster.length === 0) {
 return (
 <div>
-{msg && <p style={{ color: '#c0685a' }}>{msg}</p>}
-<p style={{ color: '#8a7a5c', fontSize: '0.9rem' }}>The full list for this set/series hasn’t been looked up yet.</p>
+{msg && <p style={{ color: '#8C3A2B' }}>{msg}</p>}
+<p style={{ color: '#6E6552', fontSize: '0.9rem' }}>The full list for this set/series hasn’t been looked up yet.</p>
 <button type="button" style={btn} onClick={fetchRoster} disabled={busy}>{busy ? 'Researching the full list…' : 'Look up every title in this set/series'}</button>
 </div>
 );
 }
-const tab = (on: boolean) => ({ ...btn, marginRight: '0.5rem', background: on ? '#b8923f' : 'transparent', color: on ? '#15100b' : '#c4b490', borderColor: on ? '#b8923f' : '#4a3d2c' });
+const tab = (on: boolean) => ({ ...btn, marginRight: '0.5rem', background: on ? '#3D5245' : 'transparent', color: on ? '#F2EDE0' : '#4A4335', borderColor: on ? '#3D5245' : '#C4B79C' });
 return (
 <div>
-{msg && <p style={{ color: '#c0685a' }}>{msg}</p>}
+{msg && <p style={{ color: '#8C3A2B' }}>{msg}</p>}
 <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginBottom: '1.25rem' }}>
-<div><div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '1.8rem', color: '#e8dcc0' }}>{ownedCount}</div><div style={{ fontSize: '0.7rem', color: '#8a7a5c', letterSpacing: '0.08em' }}>OWNED</div></div>
-<div><div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '1.8rem', color: '#c0685a' }}>{roster.length - ownedCount}</div><div style={{ fontSize: '0.7rem', color: '#8a7a5c', letterSpacing: '0.08em' }}>MISSING</div></div>
-<div><div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '1.8rem', color: '#c4b490' }}>{Math.round((ownedCount / roster.length) * 100)}%</div><div style={{ fontSize: '0.7rem', color: '#8a7a5c', letterSpacing: '0.08em' }}>COMPLETE</div></div>
+<div><div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '1.8rem', color: '#2E2A22' }}>{ownedCount}</div><div style={{ fontSize: '0.7rem', color: '#6E6552', letterSpacing: '0.08em' }}>OWNED</div></div>
+<div><div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '1.8rem', color: '#8C3A2B' }}>{roster.length - ownedCount}</div><div style={{ fontSize: '0.7rem', color: '#6E6552', letterSpacing: '0.08em' }}>MISSING</div></div>
+<div><div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '1.8rem', color: '#4A4335' }}>{Math.round((ownedCount / roster.length) * 100)}%</div><div style={{ fontSize: '0.7rem', color: '#6E6552', letterSpacing: '0.08em' }}>COMPLETE</div></div>
 </div>
-{matchingNote(set.kind) && <p style={{ color: '#8a7a5c', fontSize: '0.8rem', lineHeight: 1.5, marginBottom: '0.5rem', fontStyle: 'italic' }}>{matchingNote(set.kind)}</p>}
-{set.roster?.note && <p style={{ color: '#8a7a5c', fontSize: '0.8rem', lineHeight: 1.5, marginBottom: '1rem' }}>{set.roster.note}</p>}
+{matchingNote(set.kind) && <p style={{ color: '#6E6552', fontSize: '0.8rem', lineHeight: 1.5, marginBottom: '0.5rem', fontStyle: 'italic' }}>{matchingNote(set.kind)}</p>}
+{set.roster?.note && <p style={{ color: '#6E6552', fontSize: '0.8rem', lineHeight: 1.5, marginBottom: '1rem' }}>{set.roster.note}</p>}
 <input value={q} onChange={e => setQ(e.target.value)} placeholder="Search by title or author…"
-style={{ width: '100%', padding: '0.6rem 0.75rem', border: '1px solid #3a2f20', background: '#1a1410', color: '#e8dcc0', fontFamily: "'EB Garamond', serif", fontSize: '1rem', boxSizing: 'border-box', marginBottom: '0.75rem', outline: 'none' }} />
+style={{ width: '100%', padding: '0.6rem 0.75rem', border: '1px solid #3a2f20', background: '#FBF8F0', color: '#2E2A22', fontFamily: "'EB Garamond', serif", fontSize: '1rem', boxSizing: 'border-box', marginBottom: '0.75rem', outline: 'none' }} />
 <div style={{ marginBottom: '1rem' }}>
 <button type="button" style={tab(filter === 'all')} onClick={() => setFilter('all')}>All {roster.length}</button>
 <button type="button" style={tab(filter === 'owned')} onClick={() => setFilter('owned')}>Owned {ownedCount}</button>
 <button type="button" style={tab(filter === 'missing')} onClick={() => setFilter('missing')}>Missing {roster.length - ownedCount}</button>
 </div>
-{rows.length === 0 && <p style={{ color: '#8a7a5c', fontSize: '0.9rem' }}>Nothing matches that search.</p>}
+{rows.length === 0 && <p style={{ color: '#6E6552', fontSize: '0.9rem' }}>Nothing matches that search.</p>}
 {rows.map((t: any, i: number) => (
 <div key={i} style={{ display: 'flex', gap: '0.75rem', alignItems: 'baseline', padding: '0.6rem 0', borderBottom: '1px solid #29221755' }}>
-<span style={{ width: 52, textAlign: 'right', color: '#5c5040', fontSize: '0.75rem', flexShrink: 0 }}>{seqLabel(set.kind, t.sequence_number) ?? '—'}</span>
-<span style={{ color: t.owned ? '#8faa7a' : '#5c5040', flexShrink: 0 }}>{t.owned ? '●' : '○'}</span>
+<span style={{ width: 52, textAlign: 'right', color: '#8C8470', fontSize: '0.75rem', flexShrink: 0 }}>{seqLabel(set.kind, t.sequence_number) ?? '—'}</span>
+<span style={{ color: t.owned ? '#3D5245' : '#8C8470', flexShrink: 0 }}>{t.owned ? '●' : '○'}</span>
 <span style={{ flex: 1 }}>
-<span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '1.05rem', color: t.owned ? '#e8dcc0' : '#8a7a5c' }}>{t.title}</span>
-{t.author && <span style={{ color: '#5c5040', fontSize: '0.8rem', marginLeft: '0.5rem' }}>{t.author}</span>}
+<span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '1.05rem', color: t.owned ? '#2E2A22' : '#6E6552' }}>{t.title}</span>
+{t.author && <span style={{ color: '#8C8470', fontSize: '0.8rem', marginLeft: '0.5rem' }}>{t.author}</span>}
 </span>
 </div>
 ))}

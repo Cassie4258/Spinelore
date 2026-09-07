@@ -2,10 +2,10 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../../lib/supabase';
-const inp = { width: '100%', padding: '0.5rem 0.1rem', border: 'none', borderBottom: '1px solid #4a3d2c', background: 'transparent', color: '#e8dcc0', fontSize: '1rem', fontFamily: "'EB Garamond', serif", boxSizing: 'border-box' as const, outline: 'none' };
-const lbl = { fontSize: '0.7rem', color: '#8a7a5c', letterSpacing: '0.1em', marginBottom: '0.2rem', display: 'block' };
-const btn = { background: 'transparent', border: '1px solid #4a3d2c', color: '#c4b490', padding: '0.5rem 1rem', cursor: 'pointer', fontFamily: "'EB Garamond', serif", fontSize: '0.85rem' };
-const primary = { ...btn, background: '#4a2318', border: '1px solid #6b3524', color: '#e8dcc0' };
+const inp = { width: '100%', padding: '0.5rem 0.1rem', border: 'none', borderBottom: '1px solid #4a3d2c', background: 'transparent', color: '#2E2A22', fontSize: '1rem', fontFamily: "'EB Garamond', serif", boxSizing: 'border-box' as const, outline: 'none' };
+const lbl = { fontSize: '0.7rem', color: '#6E6552', letterSpacing: '0.1em', marginBottom: '0.2rem', display: 'block' };
+const btn = { background: 'transparent', border: '1px solid #4a3d2c', color: '#4A4335', padding: '0.5rem 1rem', cursor: 'pointer', fontFamily: "'EB Garamond', serif", fontSize: '0.85rem' };
+const primary = { ...btn, background: '#3D5245', border: '1px solid #6b3524', color: '#2E2A22' };
 const section = { border: '1px solid #3a2f20', padding: '1.25rem', marginBottom: '2rem' };
 export default function Editor({ copy, edition, work, authorId, authorName, illustratorId, illustratorName, latest, aiNotes }: any) {
 const router = useRouter();
@@ -112,7 +112,7 @@ router.refresh();
 const GRADES = ['', 'Fine', 'Near Fine', 'Very Good', 'Good', 'Fair', 'Poor'];
 const Sel = ({ k, label }: any) => (
 <div><label style={lbl}>{label}</label>
-<select style={{ ...inp, background: '#15100b' }} value={f[k as keyof typeof f] as string} onChange={e => set(k, e.target.value)}>
+<select style={{ ...inp, background: '#F2EDE0' }} value={f[k as keyof typeof f] as string} onChange={e => set(k, e.target.value)}>
 {GRADES.map(g => <option key={g} value={g}>{g || '— select —'}</option>)}
 </select></div>
 );
@@ -125,24 +125,24 @@ const F = ({ k, label, type = 'text', wide = false }: any) => (
 </div>
 );
 const Chk = ({ k, label }: any) => (
-<label style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', color: '#c4b490', fontSize: '0.9rem' }}>
+<label style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', color: '#4A4335', fontSize: '0.9rem' }}>
 <input type="checkbox" checked={f[k as keyof typeof f] as boolean} onChange={e => set(k, e.target.checked)} /> {label}
 </label>
 );
 return (
 <div>
-{msg && <p style={{ color: '#c0685a' }}>{msg}</p>}
+{msg && <p style={{ color: '#8C3A2B' }}>{msg}</p>}
 <div style={section}>
 <div style={lbl}>ESTIMATED VALUE</div>
 {latest ? (
-<div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '1.6rem', color: '#e8dcc0' }}>
+<div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '1.6rem', color: '#2E2A22' }}>
 {latest.low_estimate != null && latest.high_estimate != null ? `$${Number(latest.low_estimate).toLocaleString()} – $${Number(latest.high_estimate).toLocaleString()}` : latest.low_estimate != null || latest.high_estimate != null ? `$${Number(latest.low_estimate ?? latest.high_estimate).toLocaleString()}` : '—'}
-<span style={{ fontSize: '0.7rem', color: '#8a7a5c', marginLeft: '0.75rem', letterSpacing: '0.05em' }}>
+<span style={{ fontSize: '0.7rem', color: '#6E6552', marginLeft: '0.75rem', letterSpacing: '0.05em' }}>
 {latest.confidence === 'manual' ? 'YOUR OWN VALUE' : `AI · CONFIDENCE: ${String(latest.confidence ?? '').toUpperCase()}`}
 </span>
 </div>
-) : <p style={{ color: '#8a7a5c', fontSize: '0.9rem' }}>No valuation yet.</p>}
-{latest?.reasoning && <p style={{ color: '#8a7a5c', fontSize: '0.85rem', lineHeight: 1.5, marginTop: '0.75rem', whiteSpace: 'pre-wrap' }}>{latest.reasoning}</p>}
+) : <p style={{ color: '#6E6552', fontSize: '0.9rem' }}>No valuation yet.</p>}
+{latest?.reasoning && <p style={{ color: '#6E6552', fontSize: '0.85rem', lineHeight: 1.5, marginTop: '0.75rem', whiteSpace: 'pre-wrap' }}>{latest.reasoning}</p>}
 <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginTop: '1rem' }}>
 <button type="button" style={btn} onClick={runAiValuation} disabled={busy === 'ai'}>{busy === 'ai' ? 'Searching comparables…' : latest ? 'Re-run AI valuation' : 'Run AI valuation'}</button>
 <button type="button" style={btn} onClick={() => setShowManual(s => !s)}>Enter my own value</button>
@@ -159,15 +159,15 @@ return (
 <div style={section}>
 <div style={lbl}>HISTORY & EDITION NOTES</div>
 {aiNotes ? (
-<div style={{ color: '#c4b490', fontSize: '0.95rem', lineHeight: 1.6 }}>
-<p style={{ color: '#e8dcc0' }}>{aiNotes.summary}</p>
+<div style={{ color: '#4A4335', fontSize: '0.95rem', lineHeight: 1.6 }}>
+<p style={{ color: '#2E2A22' }}>{aiNotes.summary}</p>
 <div style={{ ...lbl, marginTop: '1rem' }}>HISTORY</div><p>{aiNotes.history}</p>
 <div style={{ ...lbl, marginTop: '1rem' }}>ABOUT THIS EDITION</div><p>{aiNotes.edition_notes}</p>
-{aiNotes.collector_significance && (<><div style={{ ...lbl, marginTop: '1rem' }}>COLLECTOR SIGNIFICANCE</div><p><strong style={{ color: '#e8dcc0' }}>{aiNotes.collector_significance}</strong> — {aiNotes.significance_reason}</p></>)}
-{aiNotes.sources?.length > 0 && (<div style={{ marginTop: '0.75rem' }}>{aiNotes.sources.slice(0, 6).map((s: any, i: number) => (<div key={i} style={{ fontSize: '0.8rem' }}><a href={s.url} target="_blank" rel="noopener noreferrer" style={{ color: '#8a9aaa' }}>{s.title}</a></div>))}</div>)}
-<div style={{ color: '#5c5040', fontSize: '0.75rem', marginTop: '0.75rem' }}>Generated {new Date(aiNotes.generated_at).toLocaleDateString()} · AI research — verify before relying on it</div>
+{aiNotes.collector_significance && (<><div style={{ ...lbl, marginTop: '1rem' }}>COLLECTOR SIGNIFICANCE</div><p><strong style={{ color: '#2E2A22' }}>{aiNotes.collector_significance}</strong> — {aiNotes.significance_reason}</p></>)}
+{aiNotes.sources?.length > 0 && (<div style={{ marginTop: '0.75rem' }}>{aiNotes.sources.slice(0, 6).map((s: any, i: number) => (<div key={i} style={{ fontSize: '0.8rem' }}><a href={s.url} target="_blank" rel="noopener noreferrer" style={{ color: '#3D5245' }}>{s.title}</a></div>))}</div>)}
+<div style={{ color: '#8C8470', fontSize: '0.75rem', marginTop: '0.75rem' }}>Generated {new Date(aiNotes.generated_at).toLocaleDateString()} · AI research — verify before relying on it</div>
 </div>
-) : <p style={{ color: '#8a7a5c', fontSize: '0.9rem' }}>No history generated yet.</p>}
+) : <p style={{ color: '#6E6552', fontSize: '0.9rem' }}>No history generated yet.</p>}
 <button type="button" style={{ ...btn, marginTop: '1rem' }} onClick={generateHistory} disabled={busy === 'history'}>{busy === 'history' ? 'Researching…' : aiNotes ? 'Regenerate history' : 'Generate history & edition notes'}</button>
 </div>
 {mode === 'view' ? (

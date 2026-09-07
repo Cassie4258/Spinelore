@@ -5,11 +5,11 @@ import { supabase } from '../../lib/supabase';
 import { KIND_LABEL, seqLabel } from '../../lib/groupings';
 const inputStyle = {
 width: '100%',
-padding: '0.55rem 0.1rem',
+padding: '0.55rem 0.7rem',
 border: 'none',
 borderBottom: '1px solid #4a3d2c',
 background: 'transparent',
-color: '#e8dcc0',
+color: '#2E2A22',
 fontSize: '1.05rem',
 fontFamily: "'EB Garamond', serif",
 boxSizing: 'border-box' as const,
@@ -17,7 +17,7 @@ outline: 'none',
 };
 const labelStyle = {
 fontSize: '0.75rem',
-color: '#8a7a5c',
+color: '#6E6552',
 letterSpacing: '0.1em',
 marginBottom: '0.3rem',
 display: 'block',
@@ -292,10 +292,10 @@ setSaving(false);
 }
 return (
 <div>
-<h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: 'italic', fontWeight: 500, fontSize: '1.8rem', color: '#e8dcc0', margin: '0 0 0.25rem' }}>
+<h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: 'italic', fontWeight: 500, fontSize: '1.8rem', color: '#2E2A22', margin: '0 0 0.25rem' }}>
 Accession a Volume
 </h2>
-<p style={{ color: '#8a7a5c', fontSize: '0.9rem', marginBottom: '2rem' }}>
+<p style={{ color: '#6E6552', fontSize: '0.9rem', marginBottom: '2rem' }}>
 Record the essentials now — rarity, provenance, and valuation can be added to the volume's entry later.
 </p>
 <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '1.4rem' }}>
@@ -305,7 +305,7 @@ Record the essentials now — rarity, provenance, and valuation can be added to 
 display: 'inline-block',
 background: 'transparent',
 border: '1px solid #4a3d2c',
-color: '#c4b490',
+color: '#4A4335',
 padding: '0.55rem 1.1rem',
 cursor: 'pointer',
 fontSize: '0.9rem',
@@ -322,12 +322,12 @@ style={{ display: 'none' }}
 />
 </label>
 {extracting && (
-<p style={{ color: '#8a7a5c', fontSize: '0.85rem', marginTop: '0.5rem', fontStyle: 'italic' }}>
+<p style={{ color: '#6E6552', fontSize: '0.85rem', marginTop: '0.5rem', fontStyle: 'italic' }}>
 Reading the cover for title, author, publisher…
 </p>
 )}
 {aiFilled.length > 0 && (
-<p style={{ color: '#8faa7a', fontSize: '0.85rem', marginTop: '0.5rem' }}>
+<p style={{ color: '#3D5245', fontSize: '0.85rem', marginTop: '0.5rem' }}>
 Filled from photograph: {aiFilled.join(', ')} — please verify before saving.
 </p>
 )}
@@ -340,16 +340,16 @@ Filled from photograph: {aiFilled.join(', ')} — please verify before saving.
 )}
 </div>
 {dupes.length > 0 && (
-<div style={{ border: '1px solid #6b5524', background: '#241d10', padding: '1rem', fontSize: '0.9rem' }}>
-<div style={{ color: '#d8b24f', marginBottom: '0.5rem' }}>You may already own this — {dupes.length} {dupes.length === 1 ? 'copy' : 'copies'} of this title in the archive:</div>
+<div style={{ border: '1px solid #6b5524', background: '#F5EBD2', padding: '1rem', fontSize: '0.9rem' }}>
+<div style={{ color: '#7A6320', marginBottom: '0.5rem' }}>You may already own this — {dupes.length} {dupes.length === 1 ? 'copy' : 'copies'} of this title in the archive:</div>
 {dupes.map((d: any) => (
 <div key={d.id} style={{ marginBottom: '0.25rem' }}>
-<a href={`/copies/${d.id}`} style={{ color: '#c4b490' }}>
+<a href={`/copies/${d.id}`} style={{ color: '#4A4335' }}>
 {[d.editions?.publisher, d.editions?.pub_year, d.condition_book].filter(Boolean).join(' · ') || 'existing copy'}
 </a>
 </div>
 ))}
-<div style={{ color: '#8a7a5c', fontSize: '0.8rem', marginTop: '0.5rem' }}>Multiple copies are fine — carry on if this is a different edition or a second copy.</div>
+<div style={{ color: '#6E6552', fontSize: '0.8rem', marginTop: '0.5rem' }}>Multiple copies are fine — carry on if this is a different edition or a second copy.</div>
 </div>
 )}
 <div>
@@ -402,7 +402,7 @@ placeholder="Hardcover, paperback..." />
 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
 <div>
 <label style={labelStyle}>CONDITION</label>
-<select style={{ ...inputStyle, background: '#15100b' }} value={form.condition_book}
+<select style={{ ...inputStyle, background: '#F2EDE0' }} value={form.condition_book}
 onChange={e => update('condition_book', e.target.value)}>
 {['', 'Fine', 'Near Fine', 'Very Good', 'Good', 'Fair', 'Poor'].map(g => <option key={g} value={g}>{g || '— select —'}</option>)}
 </select>
@@ -416,22 +416,22 @@ onChange={e => update('purchase_price', e.target.value)} />
 <div style={{ borderTop: '1px solid #3a2f20', paddingTop: '1.2rem' }}>
 <label style={labelStyle}>SETS &amp; SERIES</label>
 {enriching && (
-<p style={{ color: '#8a7a5c', fontSize: '0.85rem', fontStyle: 'italic' }}>
+<p style={{ color: '#6E6552', fontSize: '0.85rem', fontStyle: 'italic' }}>
 Researching edition, series, genre and market value…
 </p>
 )}
 {!enriching && enrichDone && groupings.length > 0 && groupings.map((g: any, i: number) => (
 <div key={i} style={{ marginBottom: '0.75rem' }}>
-<div style={{ fontSize: '0.65rem', color: '#8a7a5c', letterSpacing: '0.1em' }}>{(KIND_LABEL[g.kind] ?? 'Grouping').toUpperCase()}</div>
-<div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '1.15rem', color: '#e8dcc0' }}>
+<div style={{ fontSize: '0.65rem', color: '#6E6552', letterSpacing: '0.1em' }}>{(KIND_LABEL[g.kind] ?? 'Grouping').toUpperCase()}</div>
+<div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '1.15rem', color: '#2E2A22' }}>
 {g.publisher && `${g.publisher} — `}{g.name}
 {seqLabel(g.kind, g.sequence_number, g.sequence_label) && ` (${seqLabel(g.kind, g.sequence_number, g.sequence_label)})`}
 </div>
-{g.reasoning && <p style={{ color: '#8a7a5c', fontSize: '0.8rem', marginTop: '0.2rem' }}>{g.reasoning}</p>}
+{g.reasoning && <p style={{ color: '#6E6552', fontSize: '0.8rem', marginTop: '0.2rem' }}>{g.reasoning}</p>}
 </div>
 ))}
 {!enriching && enrichDone && groupings.length === 0 && (
-<p style={{ color: '#5c5040', fontSize: '0.85rem' }}>Not part of a known set or series.</p>
+<p style={{ color: '#8C8470', fontSize: '0.85rem' }}>Not part of a known set or series.</p>
 )}
 </div>
 <div style={{ borderTop: '1px solid #3a2f20', paddingTop: '1.2rem' }}>
@@ -444,7 +444,7 @@ style={{
 display: 'inline-block',
 background: 'transparent',
 border: '1px solid #4a3d2c',
-color: '#c4b490',
+color: '#4A4335',
 padding: '0.55rem 1.1rem',
 cursor: 'pointer',
 fontSize: '0.9rem',
@@ -459,23 +459,23 @@ opacity: (!form.title) ? 0.5 : 1,
 <div style={{
 fontFamily: "'Cormorant Garamond', serif",
 fontSize: '1.3rem',
-color: '#e8dcc0',
+color: '#2E2A22',
 }}>
 {valueResult.low != null && valueResult.high != null
 ? `$${valueResult.low.toLocaleString()} – $${valueResult.high.toLocaleString()}`
 : 'No reliable estimate found'}
-<span style={{ fontSize: '0.75rem', color: '#8a7a5c', marginLeft: '0.6rem', letterSpacing: '0.05em' }}>
+<span style={{ fontSize: '0.75rem', color: '#6E6552', marginLeft: '0.6rem', letterSpacing: '0.05em' }}>
 CONFIDENCE: {valueResult.confidence?.toUpperCase()}
 </span>
 </div>
-<p style={{ color: '#8a7a5c', fontSize: '0.85rem', marginTop: '0.5rem', lineHeight: 1.5 }}>
+<p style={{ color: '#6E6552', fontSize: '0.85rem', marginTop: '0.5rem', lineHeight: 1.5 }}>
 {valueResult.reasoning}
 </p>
 {valueResult.sources.length > 0 && (
 <div style={{ marginTop: '0.5rem' }}>
 {valueResult.sources.slice(0, 5).map((s, i) => (
 <div key={i} style={{ fontSize: '0.8rem' }}>
-<a href={s.url} target="_blank" rel="noopener noreferrer" style={{ color: '#8a9aaa' }}>
+<a href={s.url} target="_blank" rel="noopener noreferrer" style={{ color: '#3D5245' }}>
 {s.title}
 </a>
 </div>
@@ -495,10 +495,10 @@ Signed by the author
 <textarea style={{ ...inputStyle, minHeight: '80px' }} value={form.notes}
 onChange={e => update('notes', e.target.value)} />
 </div>
-{error && <p style={{ color: '#c0685a' }}>{error}</p>}
+{error && <p style={{ color: '#8C3A2B' }}>{error}</p>}
 <button type="submit" disabled={saving} style={{
-background: '#4a2318',
-color: '#e8dcc0',
+background: '#3D5245',
+color: '#2E2A22',
 border: '1px solid #6b3524',
 padding: '0.8rem',
 fontSize: '0.95rem',
@@ -506,7 +506,7 @@ letterSpacing: '0.05em',
 fontFamily: "'EB Garamond', serif",
 cursor: 'pointer',
 opacity: saving ? 0.6 : 1,
-boxShadow: '0 0 0 1px #15100b, 0 0 0 2px #b8923f33',
+boxShadow: '0 0 0 1px #15100b, 0 0 0 2px #3D524533',
 }}>
 {saving ? 'Recording…' : 'Add to the Archive'}
 </button>

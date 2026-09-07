@@ -65,15 +65,15 @@ const keys = Object.keys(groups).sort((a, b) => groups[b].length - groups[a].len
 const shown = active ? (groups[active] ?? []) : null;
 const tab = (on: boolean) => ({
 display: 'inline-block', padding: '0.35rem 0.8rem', marginRight: '0.4rem', marginBottom: '0.4rem',
-border: `1px solid ${on ? '#b8923f' : '#3a2f20'}`, color: on ? '#15100b' : '#c4b490',
-background: on ? '#b8923f' : 'transparent', textDecoration: 'none', fontSize: '0.8rem', letterSpacing: '0.03em',
+border: `0.5px solid ${on ? '#3D5245' : '#C4B79C'}`, color: on ? '#F2EDE0' : '#4A4335',
+background: on ? '#3D5245' : 'transparent', textDecoration: 'none', fontSize: '0.8rem', letterSpacing: '0.03em',
 });
 return (
 <div>
-<h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: 'italic', fontWeight: 500, fontSize: '1.8rem', color: '#e8dcc0', margin: '0 0 0.35rem' }}>
+<h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: 'italic', fontWeight: 500, fontSize: '1.8rem', color: '#2E2A22', margin: '0 0 0.35rem' }}>
 Browse the Archive
 </h2>
-<p style={{ color: '#8a7a5c', fontSize: '0.85rem', margin: '0 0 1.5rem' }}>
+<p style={{ color: '#6E6552', fontSize: '0.85rem', margin: '0 0 1.5rem' }}>
 {copies.length} {copies.length === 1 ? 'volume' : 'volumes'} · choose a lens, then a category
 </p>
 <div style={{ marginBottom: '1.5rem' }}>
@@ -81,10 +81,10 @@ Browse the Archive
 <a key={k} href={`/browse?by=${k}`} style={{ ...tab(by === k), fontWeight: by === k ? 600 : 400 }}>{f.label}</a>
 ))}
 </div>
-{copies.length === 0 && <p style={{ color: '#8a7a5c' }}>The archive is empty.</p>}
+{copies.length === 0 && <p style={{ color: '#6E6552' }}>The archive is empty.</p>}
 {copies.length > 0 && (
 <div style={{ borderTop: '1px solid #3a2f20', paddingTop: '1.25rem' }}>
-<div style={{ fontSize: '0.7rem', color: '#8a7a5c', letterSpacing: '0.1em', marginBottom: '0.75rem' }}>
+<div style={{ fontSize: '0.7rem', color: '#6E6552', letterSpacing: '0.1em', marginBottom: '0.75rem' }}>
 {facet.label.toUpperCase()} — {keys.length} {keys.length === 1 ? 'CATEGORY' : 'CATEGORIES'}
 </div>
 {keys.map(k => {
@@ -103,22 +103,22 @@ fontFamily: "'Cormorant Garamond', serif" }}>
 )}
 {shown && (
 <div style={{ marginTop: '2rem', borderTop: '1px solid #3a2f20', paddingTop: '1.25rem' }}>
-<div style={{ fontSize: '0.7rem', color: '#8a7a5c', letterSpacing: '0.1em', marginBottom: '1rem' }}>
+<div style={{ fontSize: '0.7rem', color: '#6E6552', letterSpacing: '0.1em', marginBottom: '1rem' }}>
 {shown.length} {shown.length === 1 ? 'VOLUME' : 'VOLUMES'} IN “{active?.toUpperCase()}”
 </div>
 {shown.map((c: any) => (
-<div key={c.id} style={{ borderLeft: '2px solid #b8923f', borderBottom: '1px solid #29221777',
+<div key={c.id} style={{ borderLeft: '2px solid #3D5245', borderBottom: '1px solid #29221777',
 padding: '1rem 0 1rem 1.25rem', display: 'flex', justifyContent: 'space-between', gap: '1rem' }}>
 <div>
-<a href={`/copies/${c.id}`} style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '1.2rem', color: '#e8dcc0', textDecoration: 'none' }}>
+<a href={`/copies/${c.id}`} style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '1.2rem', color: '#2E2A22', textDecoration: 'none' }}>
 {c.editions?.works?.title ?? 'Untitled'}
 </a>
-<div style={{ color: '#8a7a5c', fontSize: '0.85rem', marginTop: '0.2rem' }}>
+<div style={{ color: '#6E6552', fontSize: '0.85rem', marginTop: '0.2rem' }}>
 {[contributor(c, 'author'), normPub(c.editions?.publisher), c.editions?.pub_year].filter(Boolean).join(' · ')}
 {c.signed && '  ·  signed'}
 </div>
 </div>
-<div style={{ fontFamily: "'Cormorant Garamond', serif", color: '#c4b490', whiteSpace: 'nowrap' }}>
+<div style={{ fontFamily: "'Cormorant Garamond', serif", color: '#4A4335', whiteSpace: 'nowrap' }}>
 {latestValue(c.value_estimates) ?? '—'}
 </div>
 </div>
