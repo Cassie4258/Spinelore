@@ -1,79 +1,36 @@
-import { parseAiJson } from '../../lib/aijson';
-export async function POST(req: Request) {
-const apiKey = process.env.ANTHROPIC_API_KEY;
-if (!apiKey) return Response.json({ error: 'ANTHROPIC_API_KEY is not configured.' }, { status: 501 });
-const book = await req.json();
-const description = [
-book.title && `Title: ${book.title}`,
-book.author && `Author: ${book.author}`,
-book.illustrator && `Illustrator: ${book.illustrator}`,
-book.publisher && `Publisher: ${book.publisher}`,
-book.pub_year && `Publication year: ${book.pub_year}`,
-book.edition_label && `Edition statement: ${book.edition_label}`,
-book.printing_number && `Printing: ${book.printing_number}${String(book.printing_number).trim() === '1' ? ' — FIRST PRINTING' : ' — a stated later printing, NOT the first'}`,
-book.issue_state && `Issue / state: ${book.issue_state}`,
-book.binding && `Binding: ${book.binding}`,
-book.condition_book && `Condition of book: ${book.condition_book}`,
-book.dust_jacket ? `Dust jacket: PRESENT${book.condition_jacket ? `, condition ${book.condition_jacket}` : ''}` : 'Dust jacket: not present',
-book.slipcase && 'Slipcase present',
-book.defects && `Defects: ${book.defects}`,
-book.signed && 'Signed by the author',
-book.inscribed && 'Inscribed',
-book.provenance && `Provenance: ${book.provenance}`,
-book.isbn && `ISBN: ${book.isbn}`,
-book.set_context && book.set_context,
-].filter(Boolean).join('\n');
-const prompt = `I need a market value estimate for this specific book copy:
-${description}
-Search the web for comparable copies currently listed for sale (AbeBooks, Biblio, eBay, rare book dealers) and, if you can find any, recent sold/auction prices. Use the actual condition, binding, edition, and signed status described above to judge which comparables are relevant — a signed copy or a different binding/edition is not directly comparable to an unsigned trade edition.
-After searching, respond with ONLY a JSON object (no markdown fences, no other text) with these keys:
-- "low_estimate": a plain number in USD with no currency symbol, commas, or quotes (e.g. 85, not "$85" or "85.00 USD") — or null if you found no usable comparables
-- "high_estimate": a plain number in USD, same format as above — or null if you found no usable comparables
-- "confidence": "low", "medium", or "high" — low if few or no relevant comparables were found, high if there are multiple solid, closely matching comparables
-- "reasoning": AT MOST 120 words. Be concise: name the comparables that mattered and how printing, jacket and condition moved the number. Do not list every listing you saw.
-- "sources": at most 5 objects with short "title" and "url"
-The printing status above is authoritative — it was read from the copyright page or entered by the owner. If a printing is given you MUST NOT describe it as unknown or unspecified; price that exact printing. Note that "First Edition" with a printing above 1 means a later printing of the first edition, which is worth far less than a true first printing but often more than a much later one.
+import { askJson, describe, toNum } from '../../lib/ai';
+import { withCache } from '../../lib/cache';
 
-Weight these correctly, because they dominate value for collectible books:
-- PRINTING: a stated first printing of a significant 20th-century book is worth many times a later printing of the same year. Do not treat a first printing as an unspecified printing. Conversely a Book Club Edition is worth a small fraction of a trade first.
-- DUST JACKET: for 20th-century firsts the jacket is frequently the majority of the value. A first printing WITH jacket and the same book WITHOUT jacket are not comparable; only compare like with like, and say which you used.
-- Compare against copies matching this printing and jacket status specifically. If you cite a comparable with different printing or jacket status, adjust for it explicitly rather than averaging it in.
-If the copy is one volume of a multi-volume set, price it as an ODD VOLUME unless told the set is complete — odd volumes are worth far less than a proportional share of a complete set. If told the set is complete and held together, price the SET as a whole and say so in the reasoning. Do not fabricate comparables or prices. If you can't find relevant listings, say so honestly in reasoning and set confidence to "low" with null estimates.`;
-const response = await fetch('https://api.anthropic.com/v1/messages', {
-method: 'POST',
-headers: {
-'Content-Type': 'application/json',
-'x-api-key': apiKey,
-'anthropic-version': '2023-06-01',
-},
-body: JSON.stringify({
-model: 'claude-sonnet-4-6',
-max_tokens: 4000,
-messages: [{ role: 'user', content: prompt }],
-tools: [{ type: 'web_search_20250305', name: 'web_search' }],
-}),
-});
-if (!response.ok) {
-const errText = await response.text();
-return Response.json({ error: 'Valuation request failed.', detail: errText }, { status: 502 });
-}
-const data = await response.json();
-const text = (data.content ?? [])
-.filter((b: any) => b.type === 'text')
-.map((b: any) => b.text)
-.join('\n');
-{
-const parsedRaw = parseAiJson(text);
-if (!parsedRaw) return Response.json({ error: 'Could not parse the response.', raw: text.slice(0, 400) }, { status: 502 });
-const parsed = parsedRaw;
-const toNumber = (v: any) => {
-if (v == null) return null;
-if (typeof v === 'number') return v;
-const n = parseFloat(String(v).replace(/[^0-9.]/g, ''));
-return isNaN(n) ? null : n;
-};
-parsed.low_estimate = toNumber(parsed.low_estimate);
-parsed.high_estimate = toNumber(parsed.high_estimate);
-return Response.json(parsed);
-}
+export async function POST(req: Request) {
+  const book = await req.json();
+  try {
+    const result = await withCache('valuate', book, async () => {
+      const d = await askJson(`I need a market value estimate for this specific book copy:
+
+${describe(book, { full: true })}
+
+Search the web for comparable copies currently listed for sale (AbeBooks, Biblio, eBay, rare-book dealers) and, where you can find them, recent sold or auction prices.
+
+The printing status above is authoritative — it was read from the copyright page or entered by the owner. If a printing is given you MUST NOT describe it as unknown or unspecified; price that exact printing. "First Edition" with a printing above 1 means a later printing of the first edition: worth far less than a true first printing, but meaningfully MORE than a much later printing. Early printings (2nd–5th) sit in their own tier above the common later run — never lump them in with 20th-printing copies.
+
+Weight these correctly, because they dominate value:
+- PRINTING: a stated first printing of a significant 20th-century book is worth many times a later printing of the same year. A Book Club Edition is worth a small fraction of a trade first.
+- DUST JACKET: for 20th-century firsts the jacket is frequently the majority of the value. Never average jacketed and unjacketed comparables together.
+- If the copy is one volume of a multi-volume set, price it as an ODD VOLUME unless told the set is complete; if complete, price the SET and say so.
+Weight sold prices far above asking prices, and adjust explicitly for any comparable that differs in printing, jacket or condition.
+
+Respond with ONLY a JSON object (no markdown fences):
+- "low_estimate": plain number in USD, no symbols or commas, or null if no usable comparables
+- "high_estimate": same format, or null
+- "confidence": "low" | "medium" | "high"
+- "reasoning": AT MOST 120 words — name the comparables that mattered and how printing, jacket and condition moved the number
+- "sources": at most 5 objects with short "title" and "url"
+
+Do not fabricate comparables or prices. If you cannot find relevant listings, say so and set confidence to "low" with null estimates.`, { maxTokens: 4000 });
+      return { ...d, low_estimate: toNum(d.low_estimate), high_estimate: toNum(d.high_estimate) };
+    });
+    return Response.json(result);
+  } catch (e: any) {
+    return Response.json({ error: e.message ?? 'Valuation failed.' }, { status: 502 });
+  }
 }

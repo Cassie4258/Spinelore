@@ -1,5 +1,11 @@
 import { supabase } from '../lib/supabase';
 export const dynamic = 'force-dynamic';
+async function getCacheStats() {
+const { data } = await supabase.from('research_cache').select('kind, hits');
+const rows = data ?? [];
+const saved = rows.reduce((n: number, r: any) => n + (r.hits ?? 0), 0);
+return { entries: rows.length, saved };
+}
 async function getData() {
 const { data: copies } = await supabase
 .from('copies')
@@ -53,6 +59,7 @@ return (
 }
 export default async function Stats() {
 const copies = await getData();
+const cache = await getCacheStats();
 const totalVolumes = copies.length;
 const values = copies.map(c => midValue(latestEstimate(c.value_estimates)));
 const totalValue = values.reduce((a, b) => a + b, 0);
@@ -135,6 +142,14 @@ Value by Publisher
 Volumes by Decade Published
 </h3>
 <BarChart data={decadeData} money={false} />
+</div>
+)}
+{cache.entries > 0 && (
+<div style={{ marginTop: '2.5rem', background: '#F2EDE0', border: '0.5px solid #C4B79C', borderRadius: '6px', padding: '1rem 1.1rem' }}>
+<div style={{ fontSize: '0.7rem', color: '#7E7460', letterSpacing: '0.1em' }}>RESEARCH CACHE</div>
+<p style={{ color: '#6E6552', fontSize: '0.85rem', margin: '0.4rem 0 0', lineHeight: 1.5 }}>
+{cache.entries} {cache.entries === 1 ? 'result' : 'results'} stored · {cache.saved} repeat {cache.saved === 1 ? 'lookup' : 'lookups'} served without a new web search.
+</p>
 </div>
 )}
 {totalVolumes === 0 && (
