@@ -43,7 +43,7 @@ const groups: Record<string, any[]> = {};
 for (const c of copies) {
 let key = 'Unknown';
 if (by === 'author') key = authorName(c) ?? 'Unknown author';
-if (by === 'publisher') key = c.editions?.publisher ?? 'Unknown publisher';
+if (by === 'publisher') key = c.editions?.publisher ? String(c.editions.publisher).replace(/^the\s+/i, '').trim() : 'Unknown publisher';
 if (by === 'genre') key = c.editions?.works?.genre ?? 'Ungenred';
 if (by === 'series') {
 const sm = c.set_members?.[0];

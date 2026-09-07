@@ -10,6 +10,10 @@ value_estimates ( low_estimate, high_estimate, estimated_at )
 `);
 return copies ?? [];
 }
+function normPub(p: any) {
+if (!p) return 'Unknown';
+return String(p).replace(/^the\s+/i, '').trim();
+}
 function latestEstimate(estimates: any[]) {
 if (!estimates || estimates.length === 0) return null;
 return [...estimates].sort(
@@ -21,7 +25,7 @@ if (!est) return 0;
 if (est.low_estimate != null && est.high_estimate != null) return (est.low_estimate + est.high_estimate) / 2;
 return est.low_estimate ?? est.high_estimate ?? 0;
 }
-function BarChart({ data, width = 620, height = 220 }: { data: { label: string; value: number }[]; width?: number; height?: number }) {
+function BarChart({ data, width = 620, height = 220, money = true }: { data: { label: string; value: number }[]; width?: number; height?: number; money?: boolean }) {
 const max = Math.max(...data.map(d => d.value), 1);
 const barWidth = Math.min(50, (width - 40) / data.length - 10);
 const gap = (width - 40 - barWidth * data.length) / Math.max(data.length - 1, 1);
@@ -38,7 +42,7 @@ return (
 {d.label}
 </text>
 <text x={x + barWidth / 2} y={y - 6} fill="#c4b490" fontSize="11" textAnchor="middle" fontFamily="EB Garamond, serif">
-{d.value >= 1000 ? `$${(d.value / 1000).toFixed(1)}k` : `$${Math.round(d.value)}`}
+{money ? (d.value >= 1000 ? `$${(d.value / 1000).toFixed(1)}k` : `$${Math.round(d.value)}`) : String(d.value)}
 </text>
 </g>
 );
@@ -56,7 +60,7 @@ const valuedCount = values.filter(v => v > 0).length;
 const signedCount = copies.filter((c: any) => c.signed).length;
 const byPublisher: Record<string, number> = {};
 copies.forEach((c: any) => {
-const pub = c.editions?.publisher || 'Unknown';
+const pub = normPub(c.editions?.publisher);
 byPublisher[pub] = (byPublisher[pub] || 0) + midValue(latestEstimate(c.value_estimates));
 });
 const publisherData = Object.entries(byPublisher)
@@ -130,7 +134,7 @@ Value by Publisher
 <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '1.2rem', color: '#c4b490', marginBottom: '1rem' }}>
 Volumes by Decade Published
 </h3>
-<BarChart data={decadeData} />
+<BarChart data={decadeData} money={false} />
 </div>
 )}
 {totalVolumes === 0 && (
