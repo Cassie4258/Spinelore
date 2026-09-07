@@ -34,13 +34,14 @@ const [valueResult, setValueResult] = useState<{
 low: number | null; high: number | null; confidence: string;
 reasoning: string; sources: { title: string; url: string }[];
 } | null>(null);
-const [identifyingSeries, setIdentifyingSeries] = useState(false);
+const [enriching, setEnriching] = useState(false);
+const [enriched, setEnriched] = useState<any>(null);
 const [seriesResult, setSeriesResult] = useState<{
 is_part_of_series: boolean; series_name: string | null;
 series_publisher: string | null; sequence_number: number | null;
 confidence: string; reasoning: string;
 } | null>(null);
-const [seriesChecked, setSeriesChecked] = useState(false);
+const [enrichDone, setEnrichDone] = useState(false);
 const [form, setForm] = useState({
 title: '',
 author: '',
@@ -152,32 +153,33 @@ setError('Valuation request failed.');
 setValuing(false);
 }
 }
-async function checkSeries(title: string, author: string, publisher: string, pub_year: string, binding: string) {
-setIdentifyingSeries(true);
+async function runEnrich(f0: any) {
+setEnriching(true);
 try {
-const res = await fetch('/api/identify-series', {
-method: 'POST',
-headers: { 'Content-Type': 'application/json' },
-body: JSON.stringify({ title, author, publisher, pub_year, binding }),
+const res = await fetch('/api/enrich', {
+method: 'POST', headers: { 'Content-Type': 'application/json' },
+body: JSON.stringify({ title: f0.title, author: f0.author, illustrator: f0.illustrator, publisher: f0.publisher, pub_year: f0.pub_year, binding: f0.binding, isbn: f0.isbn, condition_book: f0.condition_book, signed: f0.signed }),
 });
-const data = await res.json();
+const d = await res.json();
 if (res.ok) {
-setSeriesResult(data);
+setEnriched(d);
+setSeriesResult(d.series ?? null);
+if (d.valuation && (d.valuation.low_estimate != null || d.valuation.high_estimate != null)) {
+setValueResult({ low: d.valuation.low_estimate, high: d.valuation.high_estimate, confidence: d.valuation.confidence, reasoning: d.valuation.reasoning, sources: d.valuation.sources || [] });
+}
+setForm(prev => {
+const next = { ...prev };
+if (!next.genre && d.genre) next.genre = d.genre;
+if (!next.illustrator && d.illustrator) next.illustrator = d.illustrator;
+return next;
+});
 }
 } catch {
-// best-effort; silent failure
-} finally {
-setIdentifyingSeries(false);
-setSeriesChecked(true);
+} finally { setEnriching(false); setEnrichDone(true); }
 }
-}
-// Automatically check series membership once we have enough to search on,
-// without requiring the person to ask for it.
 useEffect(() => {
-if (!seriesChecked && !identifyingSeries && form.title.trim() && form.publisher.trim()) {
-checkSeries(form.title, form.author, form.publisher, form.pub_year, form.binding);
-}
-}, [form.title, form.publisher, seriesChecked, identifyingSeries]);
+if (!enrichDone && !enriching && form.title.trim() && form.publisher.trim()) runEnrich(form);
+}, [form.title, form.publisher, enrichDone, enriching]);
 async function handleSubmit(e: React.FormEvent) {
 e.preventDefault();
 setSaving(true);
@@ -185,7 +187,7 @@ setError(null);
 try {
 const { data: work, error: workErr } = await supabase
 .from('works')
-.insert({ title: form.title, genre: form.genre || null })
+.insert({ title: form.title, genre: form.genre || null, original_pub_year: enriched?.original_pub_year ?? null })
 .select()
 .single();
 if (workErr) throw workErr;
@@ -202,6 +204,10 @@ author_id: author.id,
 role: 'author',
 });
 }
+if (enriched?.translator) {
+const { data: tr } = await supabase.from('authors').insert({ name: enriched.translator }).select().single();
+if (tr) await supabase.from('work_contributors').insert({ work_id: work.id, author_id: tr.id, role: 'translator' });
+}
 if (form.illustrator.trim()) {
 const { data: ill } = await supabase.from('authors').insert({ name: form.illustrator }).select().single();
 if (ill) await supabase.from('work_contributors').insert({ work_id: work.id, author_id: ill.id, role: 'illustrator' });
@@ -214,6 +220,7 @@ publisher: form.publisher || null,
 pub_year: form.pub_year ? parseInt(form.pub_year) : null,
 isbn: form.isbn || null,
 binding: form.binding || null,
+edition_label: enriched?.edition_label || null,
 })
 .select()
 .single();
@@ -390,12 +397,12 @@ onChange={e => update('purchase_price', e.target.value)} />
 </div>
 <div style={{ borderTop: '1px solid #3a2f20', paddingTop: '1.2rem' }}>
 <label style={labelStyle}>SERIES / SET</label>
-{identifyingSeries && (
+{enriching && (
 <p style={{ color: '#8a7a5c', fontSize: '0.85rem', fontStyle: 'italic' }}>
-Checking whether this belongs to a known collector series…
+Researching edition, series, genre and market value…
 </p>
 )}
-{!identifyingSeries && seriesChecked && seriesResult?.is_part_of_series && (
+{!enriching && enrichDone && seriesResult?.is_part_of_series && (
 <div>
 <div style={{
 fontFamily: "'Cormorant Garamond', serif",
@@ -411,7 +418,7 @@ color: '#e8dcc0',
 </p>
 </div>
 )}
-{!identifyingSeries && seriesChecked && !seriesResult?.is_part_of_series && (
+{!enriching && enrichDone && !seriesResult?.is_part_of_series && (
 <p style={{ color: '#5c5040', fontSize: '0.85rem' }}>
 No known collector series found for this edition.
 </p>
@@ -435,7 +442,7 @@ fontFamily: "'EB Garamond', serif",
 opacity: (!form.title) ? 0.5 : 1,
 }}
 >
-{valuing ? 'Searching comparables…' : '⁘ Estimate Value (AI Web Search)'}
+{valuing ? 'Searching comparables…' : valueResult ? '⁘ Re-check value' : '⁘ Estimate Value (AI Web Search)'}
 </button>
 {valueResult && (
 <div style={{ marginTop: '0.9rem' }}>
