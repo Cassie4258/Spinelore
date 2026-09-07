@@ -1,6 +1,7 @@
 import { supabase } from '../../lib/supabase';
 import DeleteButton from './DeleteButton';
 import Editor from './Editor';
+import { KIND_LABEL, seqLabel } from '../../lib/groupings';
 export const dynamic = 'force-dynamic';
 async function getCopy(id: string): Promise<any> {
 const { data, error } = await supabase
@@ -20,9 +21,9 @@ if (error) { console.error(error); return null; }
 return data;
 }
 async function getSeries(workId: string | undefined) {
-if (!workId) return null;
-const { data } = await supabase.from('set_members').select('sequence_number, sets ( name, description )').eq('work_id', workId).maybeSingle();
-return data as any;
+if (!workId) return [];
+const { data } = await supabase.from('set_members').select('sequence_number, sets ( id, name, kind, publisher )').eq('work_id', workId);
+return (data ?? []) as any[];
 }
 const label = { fontSize: '0.7rem', color: '#8a7a5c', letterSpacing: '0.1em', marginBottom: '0.2rem' };
 const value = { color: '#e8dcc0', fontSize: '1rem', marginBottom: '1rem' };
@@ -60,12 +61,17 @@ return (
 </div>
 )}
 <Editor copy={c} edition={ed} work={w} authorId={authorEntry?.authors?.id ?? null} authorName={authorEntry?.authors?.name ?? ''} illustratorId={illEntry?.authors?.id ?? null} illustratorName={illEntry?.authors?.name ?? ''} latest={latest ?? null} aiNotes={c.ai_notes ?? null} />
-{series?.sets && (
+{series.length > 0 && (
 <div style={{ border: '1px solid #3a2f20', padding: '1.25rem', marginBottom: '2rem' }}>
-<div style={label}>SERIES / SET</div>
-<div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '1.2rem', color: '#e8dcc0' }}>
-{series.sets.name}{series.sequence_number != null && ` (#${series.sequence_number})`}
+<div style={label}>SETS &amp; SERIES</div>
+{series.map((m: any, i: number) => (
+<div key={i} style={{ marginBottom: i < series.length - 1 ? '0.75rem' : 0 }}>
+<div style={{ fontSize: '0.65rem', color: '#8a7a5c', letterSpacing: '0.1em' }}>{(KIND_LABEL[m.sets?.kind] ?? 'GROUPING').toUpperCase()}</div>
+<a href={`/collections/${m.sets?.id}`} style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '1.2rem', color: '#e8dcc0', textDecoration: 'none' }}>
+{m.sets?.name}{seqLabel(m.sets?.kind, m.sequence_number) && ` (${seqLabel(m.sets?.kind, m.sequence_number)})`}
+</a>
 </div>
+))}
 </div>
 )}
 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 1.5rem' }}>

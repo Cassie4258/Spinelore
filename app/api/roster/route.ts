@@ -1,10 +1,11 @@
 export async function POST(req: Request) {
 const apiKey = process.env.ANTHROPIC_API_KEY;
 if (!apiKey) return Response.json({ error: 'ANTHROPIC_API_KEY is not configured.' }, { status: 501 });
-const { seriesName, publisher } = await req.json();
-const prompt = `Find the complete list of titles in this publisher's book series/collection:
+const { seriesName, publisher, kind } = await req.json();
+const prompt = `Find the complete list of volumes/titles in this book grouping:
 
-Series: ${seriesName}
+Name: ${seriesName}
+${kind ? `Type: ${kind} (multi_volume_set = one work across several volumes; work_series = an author's connected novels read in order; publisher_series = unrelated works under one imprint; collected_works = one author's works in a matched uniform edition)` : ''}
 ${publisher ? `Publisher: ${publisher}` : ''}
 
 Search the web for a definitive list. Respond with ONLY a JSON object (no markdown fences):

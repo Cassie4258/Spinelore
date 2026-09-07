@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../../lib/supabase';
+import { KIND_LABEL, seqLabel } from '../../lib/groupings';
 const inputStyle = {
 width: '100%',
 padding: '0.55rem 0.1rem',
@@ -43,6 +44,7 @@ confidence: string; reasoning: string;
 } | null>(null);
 const [enrichDone, setEnrichDone] = useState(false);
 const [dupes, setDupes] = useState<any[]>([]);
+const [groupings, setGroupings] = useState<any[]>([]);
 const [form, setForm] = useState({
 title: '',
 author: '',
@@ -171,7 +173,8 @@ body: JSON.stringify({ title: f0.title, author: f0.author, illustrator: f0.illus
 const d = await res.json();
 if (res.ok) {
 setEnriched(d);
-setSeriesResult(d.series ?? null);
+setSeriesResult(d.groupings?.[0] ?? null);
+setGroupings(d.groupings ?? []);
 if (d.valuation && (d.valuation.low_estimate != null || d.valuation.high_estimate != null)) {
 setValueResult({ low: d.valuation.low_estimate, high: d.valuation.high_estimate, confidence: d.valuation.confidence, reasoning: d.valuation.reasoning, sources: d.valuation.sources || [] });
 }
@@ -259,31 +262,24 @@ reasoning: valueResult.reasoning +
 : ''),
 });
 }
-if (seriesResult?.is_part_of_series && seriesResult.series_name) {
-const fullSeriesName = seriesResult.series_publisher
-? `${seriesResult.series_publisher} — ${seriesResult.series_name}`
-: seriesResult.series_name;
-const { data: existingSet } = await supabase
-.from('sets')
-.select('id')
-.eq('name', fullSeriesName)
-.maybeSingle();
-let setId = existingSet?.id;
+for (const g of groupings) {
+if (!g?.name) continue;
+const full = g.publisher ? `${g.publisher} — ${g.name}` : g.name;
+const { data: existing } = await supabase.from('sets').select('id').eq('name', full).maybeSingle();
+let setId = existing?.id;
 if (!setId) {
-const { data: newSet, error: setErr } = await supabase
-.from('sets')
-.insert({ name: fullSeriesName, description: seriesResult.reasoning })
-.select()
-.single();
-if (!setErr) setId = newSet.id;
+const { data: ns } = await supabase.from('sets').insert({
+name: full, kind: g.kind ?? 'publisher_series', publisher: g.publisher ?? null,
+description: g.reasoning ?? null, total_known: g.total_known ?? null,
+requires_matching: g.kind === 'multi_volume_set' || g.kind === 'publisher_series' || g.kind === 'collected_works',
+}).select().single();
+setId = ns?.id;
 }
 if (setId) {
 await supabase.from('set_members').insert({
-set_id: setId,
-work_id: work.id,
-edition_id: edition.id,
-sequence_number: seriesResult.sequence_number,
-});
+set_id: setId, work_id: work.id, edition_id: edition.id,
+sequence_number: g.sequence_number ?? null,
+}).select();
 }
 }
 router.push('/');
@@ -418,32 +414,24 @@ onChange={e => update('purchase_price', e.target.value)} />
 </div>
 </div>
 <div style={{ borderTop: '1px solid #3a2f20', paddingTop: '1.2rem' }}>
-<label style={labelStyle}>SERIES / SET</label>
+<label style={labelStyle}>SETS &amp; SERIES</label>
 {enriching && (
 <p style={{ color: '#8a7a5c', fontSize: '0.85rem', fontStyle: 'italic' }}>
 Researching edition, series, genre and market value…
 </p>
 )}
-{!enriching && enrichDone && seriesResult?.is_part_of_series && (
-<div>
-<div style={{
-fontFamily: "'Cormorant Garamond', serif",
-fontSize: '1.15rem',
-color: '#e8dcc0',
-}}>
-{seriesResult.series_publisher && `${seriesResult.series_publisher} — `}
-{seriesResult.series_name}
-{seriesResult.sequence_number != null && ` (#${seriesResult.sequence_number})`}
+{!enriching && enrichDone && groupings.length > 0 && groupings.map((g: any, i: number) => (
+<div key={i} style={{ marginBottom: '0.75rem' }}>
+<div style={{ fontSize: '0.65rem', color: '#8a7a5c', letterSpacing: '0.1em' }}>{(KIND_LABEL[g.kind] ?? 'Grouping').toUpperCase()}</div>
+<div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '1.15rem', color: '#e8dcc0' }}>
+{g.publisher && `${g.publisher} — `}{g.name}
+{seqLabel(g.kind, g.sequence_number, g.sequence_label) && ` (${seqLabel(g.kind, g.sequence_number, g.sequence_label)})`}
 </div>
-<p style={{ color: '#8a7a5c', fontSize: '0.8rem', marginTop: '0.3rem' }}>
-{seriesResult.reasoning}
-</p>
+{g.reasoning && <p style={{ color: '#8a7a5c', fontSize: '0.8rem', marginTop: '0.2rem' }}>{g.reasoning}</p>}
 </div>
-)}
-{!enriching && enrichDone && !seriesResult?.is_part_of_series && (
-<p style={{ color: '#5c5040', fontSize: '0.85rem' }}>
-No known collector series found for this edition.
-</p>
+))}
+{!enriching && enrichDone && groupings.length === 0 && (
+<p style={{ color: '#5c5040', fontSize: '0.85rem' }}>Not part of a known set or series.</p>
 )}
 </div>
 <div style={{ borderTop: '1px solid #3a2f20', paddingTop: '1.2rem' }}>

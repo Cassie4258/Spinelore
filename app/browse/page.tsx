@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabase';
+import { KIND_LABEL } from '../lib/groupings';
 export const dynamic = 'force-dynamic';
 async function getCopies(): Promise<any[]> {
 const { data, error } = await supabase
@@ -7,7 +8,7 @@ const { data, error } = await supabase
 id, signed, condition_book, created_at,
 editions ( publisher, pub_year, works ( title, genre,
 work_contributors ( role, authors ( name ) ),
-set_members ( sequence_number, sets ( name ) ) ) ),
+set_members ( sequence_number, sets ( name, kind ) ) ) ),
 value_estimates ( low_estimate, high_estimate, estimated_at )
 `)
 .order('created_at', { ascending: false });
@@ -36,9 +37,15 @@ author: { label: 'Author', keys: c => [contributor(c, 'author') ?? 'Unattributed
 illustrator: { label: 'Illustrator', keys: c => [contributor(c, 'illustrator') ?? 'No illustrator recorded'] },
 publisher: { label: 'Publisher', keys: c => [normPub(c.editions?.publisher) ?? 'Unknown publisher'] },
 genre: { label: 'Genre', keys: c => [c.editions?.works?.genre || 'Not yet categorised'] },
-series: { label: 'Series', keys: c => {
+series: { label: 'Sets & series', keys: c => {
 const sm = c.editions?.works?.set_members ?? [];
-return sm.length ? sm.map((m: any) => m.sets?.name).filter(Boolean) : ['Not part of a series'];
+const names = sm.map((m: any) => m.sets?.name).filter(Boolean);
+return names.length ? names : ['Not part of a set or series'];
+} },
+kind: { label: 'Type', keys: c => {
+const sm = c.editions?.works?.set_members ?? [];
+const kinds = sm.map((m: any) => KIND_LABEL[m.sets?.kind]).filter(Boolean);
+return kinds.length ? Array.from(new Set(kinds)) as string[] : ['Standalone'];
 } },
 decade: { label: 'Decade', keys: c => {
 const y = c.editions?.pub_year;

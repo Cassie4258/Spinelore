@@ -79,17 +79,18 @@ const updates: any = {};
 if (!work.genre && d.genre) updates.genre = d.genre;
 if (!work.original_pub_year && d.original_pub_year) updates.original_pub_year = d.original_pub_year;
 if (Object.keys(updates).length) await supabase.from('works').update(updates).eq('id', work.id);
-if (d.series?.is_part_of_series && d.series.series_name) {
-const full = d.series.series_publisher ? `${d.series.series_publisher} — ${d.series.series_name}` : d.series.series_name;
-let { data: existing } = await supabase.from('sets').select('id').eq('name', full).maybeSingle();
-let setId = existing?.id;
+for (const g of (d.groupings ?? [])) {
+if (!g?.name) continue;
+const full = g.publisher ? `${g.publisher} — ${g.name}` : g.name;
+const { data: ex } = await supabase.from('sets').select('id').eq('name', full).maybeSingle();
+let setId = ex?.id;
 if (!setId) {
-const { data: ns } = await supabase.from('sets').insert({ name: full, publisher: d.series.series_publisher ?? null, description: d.series.reasoning }).select().single();
+const { data: ns } = await supabase.from('sets').insert({ name: full, kind: g.kind ?? 'publisher_series', publisher: g.publisher ?? null, description: g.reasoning ?? null, total_known: g.total_known ?? null, requires_matching: g.kind !== 'work_series' }).select().single();
 setId = ns?.id;
 }
 if (setId) {
 const { data: already } = await supabase.from('set_members').select('set_id').eq('set_id', setId).eq('work_id', work.id).maybeSingle();
-if (!already) await supabase.from('set_members').insert({ set_id: setId, work_id: work.id, edition_id: edition.id, sequence_number: d.series.sequence_number });
+if (!already) await supabase.from('set_members').insert({ set_id: setId, work_id: work.id, edition_id: edition.id, sequence_number: g.sequence_number ?? null });
 }
 }
 if (d.valuation && (d.valuation.low_estimate != null || d.valuation.high_estimate != null)) {
