@@ -377,9 +377,10 @@ placeholder="Hardcover, paperback..." />
 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
 <div>
 <label style={labelStyle}>CONDITION</label>
-<input style={inputStyle} value={form.condition_book}
-onChange={e => update('condition_book', e.target.value)}
-placeholder="Fine, Very Good..." />
+<select style={{ ...inputStyle, background: '#15100b' }} value={form.condition_book}
+onChange={e => update('condition_book', e.target.value)}>
+{['', 'Fine', 'Near Fine', 'Very Good', 'Good', 'Fair', 'Poor'].map(g => <option key={g} value={g}>{g || '— select —'}</option>)}
+</select>
 </div>
 <div>
 <label style={labelStyle}>PURCHASE PRICE</label>

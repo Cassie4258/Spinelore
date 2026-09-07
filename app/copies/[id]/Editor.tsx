@@ -79,6 +79,13 @@ await supabase.from('copies').update({ ai_notes: { ...d, generated_at: new Date(
 router.refresh();
 } catch (e: any) { setMsg(e.message); } finally { setBusy(null); }
 }
+const GRADES = ['', 'Fine', 'Near Fine', 'Very Good', 'Good', 'Fair', 'Poor'];
+const Sel = ({ k, label }: any) => (
+<div><label style={lbl}>{label}</label>
+<select style={{ ...inp, background: '#15100b' }} value={f[k as keyof typeof f] as string} onChange={e => set(k, e.target.value)}>
+{GRADES.map(g => <option key={g} value={g}>{g || '— select —'}</option>)}
+</select></div>
+);
 const F = ({ k, label, type = 'text', wide = false }: any) => (
 <div style={wide ? { gridColumn: '1 / -1' } : {}}>
 <label style={lbl}>{label}</label>
@@ -144,7 +151,7 @@ return (
 <F k="edition_label" label="EDITION" /><F k="printing_number" label="PRINTING" />
 <F k="issue_state" label="ISSUE / STATE" /><F k="isbn" label="ISBN" />
 <F k="binding" label="BINDING" /><F k="genre" label="GENRE" />
-<F k="condition_book" label="CONDITION" /><F k="condition_jacket" label="JACKET CONDITION" />
+<Sel k="condition_book" label="CONDITION" /><Sel k="condition_jacket" label="JACKET CONDITION" />
 <F k="defects" label="DEFECTS" wide /><F k="provenance" label="PROVENANCE" wide />
 <F k="purchase_price" label="PURCHASE PRICE" type="number" /><F k="purchase_date" label="PURCHASE DATE" type="date" />
 <F k="purchase_source" label="PURCHASED FROM" wide />
