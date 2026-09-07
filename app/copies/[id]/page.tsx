@@ -42,6 +42,18 @@ const illEntry = contributors.find((x: any) => x.role === 'illustrator');
 const byRole = (r: string) => contributors.filter(x => x.role === r).map(x => x.authors?.name).filter(Boolean).join(', ');
 const workId = ed.work_id;
 const series = await getSeries(workId);
+let setContext: string | null = null;
+for (const m of series) {
+if (m.sets?.kind !== 'multi_volume_set') continue;
+const { data: sibs } = await supabase.from('set_members').select('sequence_number').eq('set_id', m.sets.id);
+const owned = (sibs ?? []).length;
+const { data: sinfo } = await supabase.from('sets').select('total_known').eq('id', m.sets.id).maybeSingle();
+const total = sinfo?.total_known ?? null;
+const pos = m.sequence_number != null ? `volume ${m.sequence_number}` : 'one volume';
+if (total && owned >= total) setContext = `This copy is ${pos} of a ${total}-volume set, and the owner holds ALL ${total} volumes — the set is complete and matched. Price the complete set.`;
+else if (total) setContext = `This copy is ${pos} of a ${total}-volume set; the owner currently holds only ${owned} of ${total}. Price it as an odd volume of a broken set.`;
+else setContext = `This copy is ${pos} of a multi-volume set.`;
+}
 const estimates = [...(c.value_estimates ?? [])].sort((a: any, b: any) => new Date(b.estimated_at).getTime() - new Date(a.estimated_at).getTime());
 const latest = estimates[0];
 const fmt = (n: any) => n == null ? null : `$${Number(n).toLocaleString()}`;
@@ -60,7 +72,7 @@ return (
 ))}
 </div>
 )}
-<Editor copy={c} edition={ed} work={w} authorId={authorEntry?.authors?.id ?? null} authorName={authorEntry?.authors?.name ?? ''} illustratorId={illEntry?.authors?.id ?? null} illustratorName={illEntry?.authors?.name ?? ''} latest={latest ?? null} aiNotes={c.ai_notes ?? null} />
+<Editor copy={c} edition={ed} work={w} authorId={authorEntry?.authors?.id ?? null} authorName={authorEntry?.authors?.name ?? ''} illustratorId={illEntry?.authors?.id ?? null} illustratorName={illEntry?.authors?.name ?? ''} latest={latest ?? null} aiNotes={c.ai_notes ?? null} setContext={setContext} />
 {series.length > 0 && (
 <div style={{ border: '1px solid #C4B79C', padding: '1.25rem', marginBottom: '2rem' }}>
 <div style={label}>SETS &amp; SERIES</div>

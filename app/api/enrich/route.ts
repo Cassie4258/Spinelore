@@ -11,6 +11,8 @@ book.pub_year && `Publication year: ${book.pub_year}`,
 book.binding && `Binding: ${book.binding}`,
 book.isbn && `ISBN: ${book.isbn}`,
 book.condition_book && `Condition: ${book.condition_book}`,
+book.volume_number && `This copy is volume ${book.volume_number}`,
+book.total_volumes && `The set comprises ${book.total_volumes} volumes`,
 book.signed && 'Signed by the author',
 ].filter(Boolean).join('\n');
 const prompt = `A book collector is cataloguing this copy. Here is what is already known from photographs:
@@ -29,9 +31,9 @@ Respond with ONLY a JSON object (no markdown fences, no other text):
 "groupings": [
   {
     "kind": "multi_volume_set" | "work_series" | "publisher_series" | "collected_works",
-    "name": "exact name of the set/series",
+    "name": "CANONICAL name only — the work or series title as commonly catalogued. Do NOT append qualifiers like publisher, year, format or volume count. Good: \"The Faerie Queene\". Bad: \"The Faerie Queene (Tonson, 1758), 2-volume octavo edition\".",
     "publisher": "publisher, for publisher_series and collected_works; otherwise null",
-    "sequence_number": integer position or null,
+    "sequence_number": integer position of THIS copy in the grouping (use the volume number stated above if given), or null,
     "sequence_label": "how collectors cite the position: 'Vol. III', 'Book 2', '#32', or null",
     "total_known": integer total volumes/titles in the grouping, or null,
     "confidence": "low" | "medium" | "high",

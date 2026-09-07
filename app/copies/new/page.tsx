@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../../lib/supabase';
 import { KIND_LABEL, seqLabel } from '../../lib/groupings';
+import { findOrCreateSet } from '../../lib/setmatch';
 const inputStyle = {
 width: '100%',
 padding: '0.55rem 0.7rem',
@@ -50,6 +51,8 @@ title: '',
 author: '',
 illustrator: '',
 genre: '',
+volume_number: '',
+total_volumes: '',
 publisher: '',
 pub_year: '',
 isbn: '',
@@ -95,7 +98,7 @@ const suggestions = await res.json();
 const filled: string[] = [];
 setForm(f => {
 const next = { ...f };
-for (const key of ['title', 'author', 'illustrator', 'publisher', 'pub_year', 'isbn', 'binding', 'genre', 'condition_book']) {
+for (const key of ['title', 'author', 'illustrator', 'publisher', 'pub_year', 'isbn', 'binding', 'genre', 'condition_book', 'volume_number', 'total_volumes']) {
 const sKey = key === 'condition_book' ? 'condition' : key;
 if (!next[key as keyof typeof next] && suggestions[sKey]) {
 (next as any)[key] = suggestions[sKey];
@@ -168,7 +171,7 @@ setEnriching(true);
 try {
 const res = await fetch('/api/enrich', {
 method: 'POST', headers: { 'Content-Type': 'application/json' },
-body: JSON.stringify({ title: f0.title, author: f0.author, illustrator: f0.illustrator, publisher: f0.publisher, pub_year: f0.pub_year, binding: f0.binding, isbn: f0.isbn, condition_book: f0.condition_book, signed: f0.signed }),
+body: JSON.stringify({ title: f0.title, author: f0.author, illustrator: f0.illustrator, publisher: f0.publisher, pub_year: f0.pub_year, binding: f0.binding, isbn: f0.isbn, condition_book: f0.condition_book, signed: f0.signed, volume_number: f0.volume_number, total_volumes: f0.total_volumes }),
 });
 const d = await res.json();
 if (res.ok) {
@@ -233,6 +236,7 @@ pub_year: form.pub_year ? parseInt(form.pub_year) : null,
 isbn: form.isbn || null,
 binding: form.binding || null,
 edition_label: enriched?.edition_label || null,
+num_volumes: form.total_volumes ? parseInt(String(form.total_volumes)) : 1,
 })
 .select()
 .single();
@@ -264,22 +268,11 @@ reasoning: valueResult.reasoning +
 }
 for (const g of groupings) {
 if (!g?.name) continue;
-const full = g.publisher ? `${g.publisher} — ${g.name}` : g.name;
-const { data: existing } = await supabase.from('sets').select('id').eq('name', full).maybeSingle();
-let setId = existing?.id;
-if (!setId) {
-const { data: ns } = await supabase.from('sets').insert({
-name: full, kind: g.kind ?? 'publisher_series', publisher: g.publisher ?? null,
-description: g.reasoning ?? null, total_known: g.total_known ?? null,
-requires_matching: g.kind === 'multi_volume_set' || g.kind === 'publisher_series' || g.kind === 'collected_works',
-}).select().single();
-setId = ns?.id;
-}
+const setId = await findOrCreateSet(g);
 if (setId) {
-await supabase.from('set_members').insert({
-set_id: setId, work_id: work.id, edition_id: edition.id,
-sequence_number: g.sequence_number ?? null,
-}).select();
+const seq = g.sequence_number ?? (form.volume_number ? parseInt(String(form.volume_number)) : null);
+const { data: already } = await supabase.from('set_members').select('set_id').eq('set_id', setId).eq('work_id', work.id).maybeSingle();
+if (!already) await supabase.from('set_members').insert({ set_id: setId, work_id: work.id, edition_id: edition.id, sequence_number: seq });
 }
 }
 router.push('/');
@@ -372,6 +365,18 @@ onChange={e => update('illustrator', e.target.value)} />
 <label style={labelStyle}>GENRE</label>
 <input style={inputStyle} value={form.genre}
 onChange={e => update('genre', e.target.value)} placeholder="Poetry, Novel, History…" />
+</div>
+</div>
+<div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+<div>
+<label style={labelStyle}>THIS IS VOLUME…</label>
+<input style={inputStyle} type="number" value={form.volume_number}
+onChange={e => update('volume_number', e.target.value)} placeholder="leave blank if single" />
+</div>
+<div>
+<label style={labelStyle}>…OF HOW MANY</label>
+<input style={inputStyle} type="number" value={form.total_volumes}
+onChange={e => update('total_volumes', e.target.value)} />
 </div>
 </div>
 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>

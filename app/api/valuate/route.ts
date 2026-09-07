@@ -11,6 +11,7 @@ book.binding && `Binding: ${book.binding}`,
 book.condition_book && `Condition: ${book.condition_book}`,
 book.signed && 'Signed by the author',
 book.isbn && `ISBN: ${book.isbn}`,
+book.set_context && book.set_context,
 ].filter(Boolean).join('\n');
 const prompt = `I need a market value estimate for this specific book copy:
 ${description}
@@ -21,7 +22,7 @@ After searching, respond with ONLY a JSON object (no markdown fences, no other t
 - "confidence": "low", "medium", or "high" — low if few or no relevant comparables were found, high if there are multiple solid, closely matching comparables
 - "reasoning": a short paragraph explaining what you found and why you landed on this range
 - "sources": array of objects with "title" and "url" for the listings/comps you used (empty array if none)
-Do not fabricate comparables or prices. If you can't find relevant listings, say so honestly in reasoning and set confidence to "low" with null estimates.`;
+If the copy is one volume of a multi-volume set, price it as an ODD VOLUME unless told the set is complete — odd volumes are worth far less than a proportional share of a complete set. If told the set is complete and held together, price the SET as a whole and say so in the reasoning. Do not fabricate comparables or prices. If you can't find relevant listings, say so honestly in reasoning and set confidence to "low" with null estimates.`;
 const response = await fetch('https://api.anthropic.com/v1/messages', {
 method: 'POST',
 headers: {

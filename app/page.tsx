@@ -5,7 +5,7 @@ const { data, error } = await supabase
 .from('copies')
 .select(`
 id, condition_book, signed, purchase_price, created_at,
-editions ( publisher, pub_year, works ( title ) ),
+editions ( publisher, pub_year, works ( title, set_members ( sequence_number, sets ( name, kind ) ) ) ),
 value_estimates ( low_estimate, high_estimate, estimated_at )
 `)
 .order('created_at', { ascending: false });
@@ -92,7 +92,7 @@ fontWeight: 500,
 color: '#2E2A22',
 textDecoration: 'none',
 }}>
-{c.editions?.works?.title ?? 'Untitled'}
+{c.editions?.works?.title ?? 'Untitled'}{(() => { const m = c.editions?.works?.set_members?.[0]; return m?.sequence_number != null ? ` — Vol. ${m.sequence_number}` : ''; })()}
 </a>
 <div style={{ color: '#6E6552', fontSize: '0.9rem', marginTop: '0.3rem' }}>
 {[c.editions?.publisher, c.editions?.pub_year].filter(Boolean).join(' · ')}

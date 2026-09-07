@@ -2,12 +2,13 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../../lib/supabase';
+import { findOrCreateSet } from '../../lib/setmatch';
 const inp = { width: '100%', padding: '0.5rem 0.1rem', border: 'none', borderBottom: '1px solid #C4B79C', background: 'transparent', color: '#2E2A22', fontSize: '1rem', fontFamily: "'EB Garamond', serif", boxSizing: 'border-box' as const, outline: 'none' };
 const lbl = { fontSize: '0.7rem', color: '#6E6552', letterSpacing: '0.1em', marginBottom: '0.2rem', display: 'block' };
 const btn = { background: 'transparent', border: '1px solid #C4B79C', color: '#4A4335', padding: '0.5rem 1rem', cursor: 'pointer', fontFamily: "'EB Garamond', serif", fontSize: '0.85rem' };
 const primary = { ...btn, background: '#3D5245', border: '1px solid #6b3524', color: '#2E2A22' };
 const section = { border: '1px solid #C4B79C', padding: '1.25rem', marginBottom: '2rem' };
-export default function Editor({ copy, edition, work, authorId, authorName, illustratorId, illustratorName, latest, aiNotes }: any) {
+export default function Editor({ copy, edition, work, authorId, authorName, illustratorId, illustratorName, latest, aiNotes, setContext }: any) {
 const router = useRouter();
 const [mode, setMode] = useState<'view' | 'edit'>('view');
 const [busy, setBusy] = useState<string | null>(null);
@@ -62,7 +63,7 @@ setShowManual(false); setBusy(null); router.refresh();
 async function runAiValuation() {
 setBusy('ai'); setMsg(null);
 try {
-const res = await fetch('/api/valuate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title: f.title, author: f.author, publisher: f.publisher, pub_year: f.pub_year, binding: f.binding, condition_book: f.condition_book, signed: f.signed, isbn: f.isbn }) });
+const res = await fetch('/api/valuate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title: f.title, author: f.author, publisher: f.publisher, pub_year: f.pub_year, binding: f.binding, condition_book: f.condition_book, signed: f.signed, isbn: f.isbn, set_context: setContext }) });
 const d = await res.json();
 if (!res.ok) throw new Error(d.error || 'Valuation failed');
 await supabase.from('value_estimates').insert({ copy_id: copy.id, low_estimate: d.low_estimate, high_estimate: d.high_estimate, confidence: d.confidence, reasoning: d.reasoning + ((d.sources ?? []).length ? '\n\nSources: ' + d.sources.map((s: any) => s.url).join(', ') : '') });
@@ -81,16 +82,11 @@ if (!work.original_pub_year && d.original_pub_year) updates.original_pub_year = 
 if (Object.keys(updates).length) await supabase.from('works').update(updates).eq('id', work.id);
 for (const g of (d.groupings ?? [])) {
 if (!g?.name) continue;
-const full = g.publisher ? `${g.publisher} — ${g.name}` : g.name;
-const { data: ex } = await supabase.from('sets').select('id').eq('name', full).maybeSingle();
-let setId = ex?.id;
-if (!setId) {
-const { data: ns } = await supabase.from('sets').insert({ name: full, kind: g.kind ?? 'publisher_series', publisher: g.publisher ?? null, description: g.reasoning ?? null, total_known: g.total_known ?? null, requires_matching: g.kind !== 'work_series' }).select().single();
-setId = ns?.id;
-}
+const setId = await findOrCreateSet(g);
 if (setId) {
 const { data: already } = await supabase.from('set_members').select('set_id').eq('set_id', setId).eq('work_id', work.id).maybeSingle();
 if (!already) await supabase.from('set_members').insert({ set_id: setId, work_id: work.id, edition_id: edition.id, sequence_number: g.sequence_number ?? null });
+else if (g.sequence_number != null) await supabase.from('set_members').update({ sequence_number: g.sequence_number }).eq('set_id', setId).eq('work_id', work.id);
 }
 }
 if (d.valuation && (d.valuation.low_estimate != null || d.valuation.high_estimate != null)) {
