@@ -53,6 +53,11 @@ illustrator: '',
 genre: '',
 volume_number: '',
 total_volumes: '',
+edition_label: '',
+printing_number: '',
+issue_state: '',
+dust_jacket: false,
+condition_jacket: '',
 publisher: '',
 pub_year: '',
 isbn: '',
@@ -64,7 +69,7 @@ value_low: '',
 value_high: '',
 notes: '',
 });
-const update = (field: string, value: any) => setForm(f => ({ ...f, [field]: value }));
+const update = (field: string, value: any) => setForm(f => ({ ...f, [field]: value, ...(field === 'condition_jacket' && value ? { dust_jacket: true } : {}) }));
 async function handlePhotoCapture(e: React.ChangeEvent<HTMLInputElement>) {
 const files = e.target.files;
 if (!files || files.length === 0) return;
@@ -98,7 +103,7 @@ const suggestions = await res.json();
 const filled: string[] = [];
 setForm(f => {
 const next = { ...f };
-for (const key of ['title', 'author', 'illustrator', 'publisher', 'pub_year', 'isbn', 'binding', 'genre', 'condition_book', 'volume_number', 'total_volumes']) {
+for (const key of ['title', 'author', 'illustrator', 'publisher', 'pub_year', 'isbn', 'binding', 'genre', 'condition_book', 'volume_number', 'total_volumes', 'edition_label', 'printing_number', 'issue_state']) {
 const sKey = key === 'condition_book' ? 'condition' : key;
 if (!next[key as keyof typeof next] && suggestions[sKey]) {
 (next as any)[key] = suggestions[sKey];
@@ -141,6 +146,9 @@ binding: form.binding,
 condition_book: form.condition_book,
 signed: form.signed,
 isbn: form.isbn,
+dust_jacket: form.dust_jacket,
+condition_jacket: form.condition_jacket,
+volume_number: form.volume_number,
 }),
 });
 const data = await res.json();
@@ -235,7 +243,9 @@ publisher: form.publisher || null,
 pub_year: form.pub_year ? parseInt(form.pub_year) : null,
 isbn: form.isbn || null,
 binding: form.binding || null,
-edition_label: enriched?.edition_label || null,
+edition_label: form.edition_label || enriched?.edition_label || null,
+printing_number: form.printing_number || null,
+issue_state: form.issue_state || null,
 num_volumes: form.total_volumes ? parseInt(String(form.total_volumes)) : 1,
 })
 .select()
@@ -245,6 +255,8 @@ const { data: copy, error: copyErr } = await supabase.from('copies').insert({
 edition_id: edition.id,
 signed: form.signed,
 condition_book: form.condition_book || null,
+condition_jacket: form.condition_jacket || null,
+dust_jacket: form.dust_jacket,
 purchase_price: form.purchase_price ? parseFloat(form.purchase_price) : null,
 notes: form.notes || null,
 }).select().single();
@@ -365,6 +377,33 @@ onChange={e => update('illustrator', e.target.value)} />
 <label style={labelStyle}>GENRE</label>
 <input style={inputStyle} value={form.genre}
 onChange={e => update('genre', e.target.value)} placeholder="Poetry, Novel, History…" />
+</div>
+</div>
+<div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+<div>
+<label style={labelStyle}>EDITION STATEMENT</label>
+<input style={inputStyle} value={form.edition_label}
+onChange={e => update('edition_label', e.target.value)} placeholder="First Edition, Book Club…" />
+</div>
+<div>
+<label style={labelStyle}>PRINTING</label>
+<input style={inputStyle} type="number" value={form.printing_number}
+onChange={e => update('printing_number', e.target.value)} placeholder="1 = first printing" />
+</div>
+</div>
+<div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+<div>
+<label style={labelStyle}>JACKET CONDITION</label>
+<select style={{ ...inputStyle, background: '#FBF8F0' }} value={form.condition_jacket}
+onChange={e => update('condition_jacket', e.target.value)}>
+{['', 'Fine', 'Near Fine', 'Very Good', 'Good', 'Fair', 'Poor'].map(g => <option key={g} value={g}>{g || '— no jacket —'}</option>)}
+</select>
+</div>
+<div style={{ display: 'flex', alignItems: 'flex-end', paddingBottom: '0.4rem' }}>
+<label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.9rem', color: '#4A4335' }}>
+<input type="checkbox" checked={form.dust_jacket} onChange={e => update('dust_jacket', e.target.checked)} />
+Dust jacket present
+</label>
 </div>
 </div>
 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>

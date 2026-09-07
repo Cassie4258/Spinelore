@@ -5,11 +5,20 @@ const book = await req.json();
 const description = [
 book.title && `Title: ${book.title}`,
 book.author && `Author: ${book.author}`,
+book.illustrator && `Illustrator: ${book.illustrator}`,
 book.publisher && `Publisher: ${book.publisher}`,
 book.pub_year && `Publication year: ${book.pub_year}`,
+book.edition_label && `Edition statement: ${book.edition_label}`,
+book.printing_number && `Printing: ${book.printing_number}${String(book.printing_number) === '1' ? ' (FIRST PRINTING)' : ''}`,
+book.issue_state && `Issue / state: ${book.issue_state}`,
 book.binding && `Binding: ${book.binding}`,
-book.condition_book && `Condition: ${book.condition_book}`,
+book.condition_book && `Condition of book: ${book.condition_book}`,
+book.dust_jacket ? `Dust jacket: PRESENT${book.condition_jacket ? `, condition ${book.condition_jacket}` : ''}` : 'Dust jacket: not present',
+book.slipcase && 'Slipcase present',
+book.defects && `Defects: ${book.defects}`,
 book.signed && 'Signed by the author',
+book.inscribed && 'Inscribed',
+book.provenance && `Provenance: ${book.provenance}`,
 book.isbn && `ISBN: ${book.isbn}`,
 book.set_context && book.set_context,
 ].filter(Boolean).join('\n');
@@ -22,6 +31,10 @@ After searching, respond with ONLY a JSON object (no markdown fences, no other t
 - "confidence": "low", "medium", or "high" — low if few or no relevant comparables were found, high if there are multiple solid, closely matching comparables
 - "reasoning": a short paragraph explaining what you found and why you landed on this range
 - "sources": array of objects with "title" and "url" for the listings/comps you used (empty array if none)
+Weight these correctly, because they dominate value for collectible books:
+- PRINTING: a stated first printing of a significant 20th-century book is worth many times a later printing of the same year. Do not treat a first printing as an unspecified printing. Conversely a Book Club Edition is worth a small fraction of a trade first.
+- DUST JACKET: for 20th-century firsts the jacket is frequently the majority of the value. A first printing WITH jacket and the same book WITHOUT jacket are not comparable; only compare like with like, and say which you used.
+- Compare against copies matching this printing and jacket status specifically. If you cite a comparable with different printing or jacket status, adjust for it explicitly rather than averaging it in.
 If the copy is one volume of a multi-volume set, price it as an ODD VOLUME unless told the set is complete — odd volumes are worth far less than a proportional share of a complete set. If told the set is complete and held together, price the SET as a whole and say so in the reasoning. Do not fabricate comparables or prices. If you can't find relevant listings, say so honestly in reasoning and set confidence to "low" with null estimates.`;
 const response = await fetch('https://api.anthropic.com/v1/messages', {
 method: 'POST',

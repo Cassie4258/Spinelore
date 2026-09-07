@@ -8,7 +8,7 @@ const lbl = { fontSize: '0.7rem', color: '#6E6552', letterSpacing: '0.1em', marg
 const btn = { background: 'transparent', border: '1px solid #C4B79C', color: '#4A4335', padding: '0.5rem 1rem', cursor: 'pointer', fontFamily: "'EB Garamond', serif", fontSize: '0.85rem' };
 const primary = { ...btn, background: '#3D5245', border: '1px solid #6b3524', color: '#2E2A22' };
 const section = { border: '1px solid #C4B79C', padding: '1.25rem', marginBottom: '2rem' };
-export default function Editor({ copy, edition, work, authorId, authorName, illustratorId, illustratorName, latest, aiNotes, setContext }: any) {
+export default function Editor({ copy, edition, work, authorId, authorName, illustratorId, illustratorName, latest, aiNotes, setContext, stale }: any) {
 const router = useRouter();
 const [mode, setMode] = useState<'view' | 'edit'>('view');
 const [busy, setBusy] = useState<string | null>(null);
@@ -63,7 +63,10 @@ setShowManual(false); setBusy(null); router.refresh();
 async function runAiValuation() {
 setBusy('ai'); setMsg(null);
 try {
-const res = await fetch('/api/valuate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title: f.title, author: f.author, publisher: f.publisher, pub_year: f.pub_year, binding: f.binding, condition_book: f.condition_book, signed: f.signed, isbn: f.isbn, set_context: setContext }) });
+const res = await fetch('/api/valuate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title: f.title, author: f.author, publisher: f.publisher, pub_year: f.pub_year, binding: f.binding, condition_book: f.condition_book, signed: f.signed, isbn: f.isbn, set_context: setContext,
+edition_label: f.edition_label, printing_number: f.printing_number, issue_state: f.issue_state,
+condition_jacket: f.condition_jacket, dust_jacket: f.dust_jacket, slipcase: f.slipcase,
+defects: f.defects, inscribed: f.inscribed, provenance: f.provenance, illustrator: f.illustrator }) });
 const d = await res.json();
 if (!res.ok) throw new Error(d.error || 'Valuation failed');
 await supabase.from('value_estimates').insert({ copy_id: copy.id, low_estimate: d.low_estimate, high_estimate: d.high_estimate, confidence: d.confidence, reasoning: d.reasoning + ((d.sources ?? []).length ? '\n\nSources: ' + d.sources.map((s: any) => s.url).join(', ') : '') });
@@ -73,7 +76,7 @@ router.refresh();
 async function reEnrich() {
 setBusy('enrich'); setMsg(null);
 try {
-const res = await fetch('/api/enrich', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title: f.title, author: f.author, illustrator: f.illustrator, publisher: f.publisher, pub_year: f.pub_year, binding: f.binding, isbn: f.isbn, condition_book: f.condition_book, signed: f.signed }) });
+const res = await fetch('/api/enrich', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title: f.title, author: f.author, illustrator: f.illustrator, publisher: f.publisher, pub_year: f.pub_year, binding: f.binding, isbn: f.isbn, condition_book: f.condition_book, signed: f.signed, edition_label: f.edition_label, printing_number: f.printing_number }) });
 const d = await res.json();
 if (!res.ok) throw new Error(d.error || 'Enrichment failed');
 const updates: any = {};
@@ -138,6 +141,11 @@ return (
 </span>
 </div>
 ) : <p style={{ color: '#6E6552', fontSize: '0.9rem' }}>No valuation yet.</p>}
+{stale && (
+<div style={{ background: '#F5EFDC', border: '0.5px solid #C9A227', borderRadius: '4px', padding: '0.6rem 0.75rem', margin: '0.75rem 0', fontSize: '0.85rem', color: '#6B5A20' }}>
+This estimate predates your most recent edits to the record. Re-run it so the valuation reflects the current details.
+</div>
+)}
 {latest?.reasoning && <p style={{ color: '#6E6552', fontSize: '0.85rem', lineHeight: 1.5, marginTop: '0.75rem', whiteSpace: 'pre-wrap' }}>{latest.reasoning}</p>}
 <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginTop: '1rem' }}>
 <button type="button" style={btn} onClick={runAiValuation} disabled={busy === 'ai'}>{busy === 'ai' ? 'Searching comparables…' : latest ? 'Re-run AI valuation' : 'Run AI valuation'}</button>

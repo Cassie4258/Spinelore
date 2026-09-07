@@ -7,7 +7,7 @@ async function getCopy(id: string): Promise<any> {
 const { data, error } = await supabase
 .from('copies')
 .select(`
-id, ai_notes, signed, inscribed, dust_jacket, slipcase, condition_book, condition_jacket, defects,
+id, ai_notes, updated_at, signed, inscribed, dust_jacket, slipcase, condition_book, condition_jacket, defects,
 provenance, purchase_date, purchase_source, purchase_price, notes, created_at,
 editions ( id, work_id, publisher, pub_place, pub_year, edition_label, printing_number, issue_state, isbn, binding, format,
 works ( id, title, subtitle, genre, original_pub_year, work_contributors ( role, authors ( id, name ) ) ) ),
@@ -72,7 +72,7 @@ return (
 ))}
 </div>
 )}
-<Editor copy={c} edition={ed} work={w} authorId={authorEntry?.authors?.id ?? null} authorName={authorEntry?.authors?.name ?? ''} illustratorId={illEntry?.authors?.id ?? null} illustratorName={illEntry?.authors?.name ?? ''} latest={latest ?? null} aiNotes={c.ai_notes ?? null} setContext={setContext} />
+<Editor copy={c} edition={ed} work={w} authorId={authorEntry?.authors?.id ?? null} authorName={authorEntry?.authors?.name ?? ''} illustratorId={illEntry?.authors?.id ?? null} illustratorName={illEntry?.authors?.name ?? ''} latest={latest ?? null} aiNotes={c.ai_notes ?? null} setContext={setContext} stale={!!(latest && c.updated_at && new Date(c.updated_at).getTime() > new Date(latest.estimated_at).getTime() + 60000)} />
 {series.length > 0 && (
 <div style={{ border: '1px solid #C4B79C', padding: '1.25rem', marginBottom: '2rem' }}>
 <div style={label}>SETS &amp; SERIES</div>
