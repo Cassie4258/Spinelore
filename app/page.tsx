@@ -36,6 +36,7 @@ const p = (c.editions?.publisher ?? '').toLowerCase();
 return t.includes(q) || p.includes(q);
 }) : all;
 return (
+<div>
 <form action="/" method="get" style={{ marginBottom: '1.25rem' }}>
 <input name="q" defaultValue={q} placeholder="Search the archive by title or publisher…"
 style={{ width: '100%', padding: '0.6rem 0.75rem', border: '1px solid #3a2f20', background: '#1a1410', color: '#e8dcc0', fontFamily: "'EB Garamond', serif", fontSize: '1rem', boxSizing: 'border-box', outline: 'none' }} />
