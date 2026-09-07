@@ -55,14 +55,14 @@ return (
 <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '2rem' }}>
 {c.copy_photos.map((p: any, i: number) => (
 <a key={i} href={p.url} target="_blank" rel="noopener noreferrer">
-<img src={p.url} alt={p.photo_type} style={{ width: 110, height: 150, objectFit: 'cover', border: '1px solid #4a3d2c' }} />
+<img src={p.url} alt={p.photo_type} style={{ width: 110, height: 150, objectFit: 'cover', border: '1px solid #C4B79C' }} />
 </a>
 ))}
 </div>
 )}
 <Editor copy={c} edition={ed} work={w} authorId={authorEntry?.authors?.id ?? null} authorName={authorEntry?.authors?.name ?? ''} illustratorId={illEntry?.authors?.id ?? null} illustratorName={illEntry?.authors?.name ?? ''} latest={latest ?? null} aiNotes={c.ai_notes ?? null} />
 {series.length > 0 && (
-<div style={{ border: '1px solid #3a2f20', padding: '1.25rem', marginBottom: '2rem' }}>
+<div style={{ border: '1px solid #C4B79C', padding: '1.25rem', marginBottom: '2rem' }}>
 <div style={label}>SETS &amp; SERIES</div>
 {series.map((m: any, i: number) => (
 <div key={i} style={{ marginBottom: i < series.length - 1 ? '0.75rem' : 0 }}>
@@ -105,7 +105,7 @@ return (
 <Field name="ADDED" val={new Date(c.created_at).toLocaleDateString()} />
 </div>
 {c.notes && (<div><div style={label}>NOTES</div><div style={{ ...value, whiteSpace: 'pre-wrap' }}>{c.notes}</div></div>)}
-<div style={{ borderTop: '1px solid #3a2f20', marginTop: '2rem', paddingTop: '1.5rem' }}>
+<div style={{ borderTop: '1px solid #C4B79C', marginTop: '2rem', paddingTop: '1.5rem' }}>
 <DeleteButton copyId={c.id} title={w.title ?? 'this volume'} />
 </div>
 </div>

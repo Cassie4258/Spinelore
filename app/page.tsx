@@ -39,7 +39,7 @@ return (
 <div>
 <form action="/" method="get" style={{ marginBottom: '1.25rem' }}>
 <input name="q" defaultValue={q} placeholder="Search the archive by title or publisher…"
-style={{ width: '100%', padding: '0.6rem 0.75rem', border: '1px solid #3a2f20', background: '#FBF8F0', color: '#2E2A22', fontFamily: "'EB Garamond', serif", fontSize: '1rem', boxSizing: 'border-box', outline: 'none' }} />
+style={{ width: '100%', padding: '0.6rem 0.75rem', border: '0.5px solid #C4B79C', borderRadius: '4px', background: '#FBF8F0', color: '#2E2A22', fontFamily: "'EB Garamond', serif", fontSize: '1rem', boxSizing: 'border-box', outline: 'none' }} />
 </form>
 <p
 style={{
@@ -47,7 +47,7 @@ color: '#6E6552',
 fontSize: '0.85rem',
 letterSpacing: '0.08em',
 marginBottom: '2rem',
-borderBottom: '1px solid #3a2f20',
+borderBottom: '1px solid #C4B79C',
 paddingBottom: '0.75rem',
 }}
 >
@@ -56,7 +56,7 @@ paddingBottom: '0.75rem',
 {copies.length === 0 && (
 <div
 style={{
-border: '1px dashed #4a3d2c',
+border: '1px dashed #C4B79C',
 padding: '3rem 2rem',
 textAlign: 'center',
 color: '#6E6552',
@@ -77,9 +77,7 @@ return (
 <div
 key={c.id}
 style={{
-borderLeft: '2px solid #3D5245',
-borderBottom: '1px solid #29221777',
-padding: '1.1rem 0 1.1rem 1.25rem',
+background: '#F2EDE0', border: '0.5px solid #C4B79C', borderRadius: '6px', padding: '0.85rem 1rem', marginBottom: '0.6rem',
 display: 'flex',
 justifyContent: 'space-between',
 alignItems: 'flex-start',

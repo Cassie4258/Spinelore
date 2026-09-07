@@ -3,7 +3,7 @@ import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../../lib/supabase';
 import { KIND_UNIT, completeness, matchingNote, seqLabel } from '../../lib/groupings';
-const btn = { background: 'transparent', border: '1px solid #4a3d2c', color: '#4A4335', padding: '0.5rem 1rem', cursor: 'pointer', fontFamily: "'EB Garamond', serif", fontSize: '0.85rem' };
+const btn = { background: 'transparent', border: '1px solid #C4B79C', color: '#4A4335', padding: '0.5rem 1rem', cursor: 'pointer', fontFamily: "'EB Garamond', serif", fontSize: '0.85rem' };
 function norm(s: string) { return (s || '').toLowerCase().replace(/^(the|a|an)\s+/, '').replace(/[^a-z0-9 ]/g, '').trim(); }
 export default function RosterView({ set, ownedTitles }: any) {
 const router = useRouter();
@@ -55,7 +55,7 @@ return (
 {matchingNote(set.kind) && <p style={{ color: '#6E6552', fontSize: '0.8rem', lineHeight: 1.5, marginBottom: '0.5rem', fontStyle: 'italic' }}>{matchingNote(set.kind)}</p>}
 {set.roster?.note && <p style={{ color: '#6E6552', fontSize: '0.8rem', lineHeight: 1.5, marginBottom: '1rem' }}>{set.roster.note}</p>}
 <input value={q} onChange={e => setQ(e.target.value)} placeholder="Search by title or author…"
-style={{ width: '100%', padding: '0.6rem 0.75rem', border: '1px solid #3a2f20', background: '#FBF8F0', color: '#2E2A22', fontFamily: "'EB Garamond', serif", fontSize: '1rem', boxSizing: 'border-box', marginBottom: '0.75rem', outline: 'none' }} />
+style={{ width: '100%', padding: '0.6rem 0.75rem', border: '0.5px solid #C4B79C', borderRadius: '4px', background: '#FBF8F0', color: '#2E2A22', fontFamily: "'EB Garamond', serif", fontSize: '1rem', boxSizing: 'border-box', marginBottom: '0.75rem', outline: 'none' }} />
 <div style={{ marginBottom: '1rem' }}>
 <button type="button" style={tab(filter === 'all')} onClick={() => setFilter('all')}>All {roster.length}</button>
 <button type="button" style={tab(filter === 'owned')} onClick={() => setFilter('owned')}>Owned {ownedCount}</button>
@@ -63,7 +63,7 @@ style={{ width: '100%', padding: '0.6rem 0.75rem', border: '1px solid #3a2f20', 
 </div>
 {rows.length === 0 && <p style={{ color: '#6E6552', fontSize: '0.9rem' }}>Nothing matches that search.</p>}
 {rows.map((t: any, i: number) => (
-<div key={i} style={{ display: 'flex', gap: '0.75rem', alignItems: 'baseline', padding: '0.6rem 0', borderBottom: '1px solid #29221755' }}>
+<div key={i} style={{ display: 'flex', gap: '0.75rem', alignItems: 'baseline', padding: '0.6rem 0', borderBottom: '1px solid #C4B79C55' }}>
 <span style={{ width: 52, textAlign: 'right', color: '#8C8470', fontSize: '0.75rem', flexShrink: 0 }}>{seqLabel(set.kind, t.sequence_number) ?? '—'}</span>
 <span style={{ color: t.owned ? '#3D5245' : '#8C8470', flexShrink: 0 }}>{t.owned ? '●' : '○'}</span>
 <span style={{ flex: 1 }}>

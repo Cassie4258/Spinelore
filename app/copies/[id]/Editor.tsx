@@ -2,11 +2,11 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../../lib/supabase';
-const inp = { width: '100%', padding: '0.5rem 0.1rem', border: 'none', borderBottom: '1px solid #4a3d2c', background: 'transparent', color: '#2E2A22', fontSize: '1rem', fontFamily: "'EB Garamond', serif", boxSizing: 'border-box' as const, outline: 'none' };
+const inp = { width: '100%', padding: '0.5rem 0.1rem', border: 'none', borderBottom: '1px solid #C4B79C', background: 'transparent', color: '#2E2A22', fontSize: '1rem', fontFamily: "'EB Garamond', serif", boxSizing: 'border-box' as const, outline: 'none' };
 const lbl = { fontSize: '0.7rem', color: '#6E6552', letterSpacing: '0.1em', marginBottom: '0.2rem', display: 'block' };
-const btn = { background: 'transparent', border: '1px solid #4a3d2c', color: '#4A4335', padding: '0.5rem 1rem', cursor: 'pointer', fontFamily: "'EB Garamond', serif", fontSize: '0.85rem' };
+const btn = { background: 'transparent', border: '1px solid #C4B79C', color: '#4A4335', padding: '0.5rem 1rem', cursor: 'pointer', fontFamily: "'EB Garamond', serif", fontSize: '0.85rem' };
 const primary = { ...btn, background: '#3D5245', border: '1px solid #6b3524', color: '#2E2A22' };
-const section = { border: '1px solid #3a2f20', padding: '1.25rem', marginBottom: '2rem' };
+const section = { border: '1px solid #C4B79C', padding: '1.25rem', marginBottom: '2rem' };
 export default function Editor({ copy, edition, work, authorId, authorName, illustratorId, illustratorName, latest, aiNotes }: any) {
 const router = useRouter();
 const [mode, setMode] = useState<'view' | 'edit'>('view');

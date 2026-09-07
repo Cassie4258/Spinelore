@@ -83,7 +83,7 @@ Browse the Archive
 </div>
 {copies.length === 0 && <p style={{ color: '#6E6552' }}>The archive is empty.</p>}
 {copies.length > 0 && (
-<div style={{ borderTop: '1px solid #3a2f20', paddingTop: '1.25rem' }}>
+<div style={{ borderTop: '1px solid #C4B79C', paddingTop: '1.25rem' }}>
 <div style={{ fontSize: '0.7rem', color: '#6E6552', letterSpacing: '0.1em', marginBottom: '0.75rem' }}>
 {facet.label.toUpperCase()} — {keys.length} {keys.length === 1 ? 'CATEGORY' : 'CATEGORIES'}
 </div>
@@ -102,13 +102,12 @@ fontFamily: "'Cormorant Garamond', serif" }}>
 </div>
 )}
 {shown && (
-<div style={{ marginTop: '2rem', borderTop: '1px solid #3a2f20', paddingTop: '1.25rem' }}>
+<div style={{ marginTop: '2rem', borderTop: '1px solid #C4B79C', paddingTop: '1.25rem' }}>
 <div style={{ fontSize: '0.7rem', color: '#6E6552', letterSpacing: '0.1em', marginBottom: '1rem' }}>
 {shown.length} {shown.length === 1 ? 'VOLUME' : 'VOLUMES'} IN “{active?.toUpperCase()}”
 </div>
 {shown.map((c: any) => (
-<div key={c.id} style={{ borderLeft: '2px solid #3D5245', borderBottom: '1px solid #29221777',
-padding: '1rem 0 1rem 1.25rem', display: 'flex', justifyContent: 'space-between', gap: '1rem' }}>
+<div key={c.id} style={{ background: '#F2EDE0', border: '0.5px solid #C4B79C', borderRadius: '6px', padding: '0.85rem 1rem', marginBottom: '0.6rem', display: 'flex', justifyContent: 'space-between', gap: '1rem' }}>
 <div>
 <a href={`/copies/${c.id}`} style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '1.2rem', color: '#2E2A22', textDecoration: 'none' }}>
 {c.editions?.works?.title ?? 'Untitled'}

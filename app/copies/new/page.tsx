@@ -7,7 +7,7 @@ const inputStyle = {
 width: '100%',
 padding: '0.55rem 0.7rem',
 border: 'none',
-borderBottom: '1px solid #4a3d2c',
+borderBottom: '1px solid #C4B79C',
 background: 'transparent',
 color: '#2E2A22',
 fontSize: '1.05rem',
@@ -304,7 +304,7 @@ Record the essentials now — rarity, provenance, and valuation can be added to 
 <label style={{
 display: 'inline-block',
 background: 'transparent',
-border: '1px solid #4a3d2c',
+border: '1px solid #C4B79C',
 color: '#4A4335',
 padding: '0.55rem 1.1rem',
 cursor: 'pointer',
@@ -334,7 +334,7 @@ Filled from photograph: {aiFilled.join(', ')} — please verify before saving.
 {photos.length > 0 && (
 <div style={{ display: 'flex', gap: '0.6rem', marginTop: '0.75rem', flexWrap: 'wrap' }}>
 {photos.map((p, i) => (
-<img key={i} src={p.url} style={{ width: 58, height: 78, objectFit: 'cover', border: '1px solid #4a3d2c' }} />
+<img key={i} src={p.url} style={{ width: 58, height: 78, objectFit: 'cover', border: '1px solid #C4B79C' }} />
 ))}
 </div>
 )}
@@ -413,7 +413,7 @@ onChange={e => update('condition_book', e.target.value)}>
 onChange={e => update('purchase_price', e.target.value)} />
 </div>
 </div>
-<div style={{ borderTop: '1px solid #3a2f20', paddingTop: '1.2rem' }}>
+<div style={{ borderTop: '1px solid #C4B79C', paddingTop: '1.2rem' }}>
 <label style={labelStyle}>SETS &amp; SERIES</label>
 {enriching && (
 <p style={{ color: '#6E6552', fontSize: '0.85rem', fontStyle: 'italic' }}>
@@ -434,7 +434,7 @@ Researching edition, series, genre and market value…
 <p style={{ color: '#8C8470', fontSize: '0.85rem' }}>Not part of a known set or series.</p>
 )}
 </div>
-<div style={{ borderTop: '1px solid #3a2f20', paddingTop: '1.2rem' }}>
+<div style={{ borderTop: '1px solid #C4B79C', paddingTop: '1.2rem' }}>
 <label style={labelStyle}>ESTIMATED VALUE</label>
 <button
 type="button"
@@ -443,7 +443,7 @@ disabled={valuing || !form.title}
 style={{
 display: 'inline-block',
 background: 'transparent',
-border: '1px solid #4a3d2c',
+border: '1px solid #C4B79C',
 color: '#4A4335',
 padding: '0.55rem 1.1rem',
 cursor: 'pointer',

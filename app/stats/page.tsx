@@ -47,7 +47,7 @@ return (
 </g>
 );
 })}
-<line x1="30" y1={height - 40} x2={width - 10} y2={height - 40} stroke="#3a2f20" strokeWidth="1" />
+<line x1="30" y1={height - 40} x2={width - 10} y2={height - 40} stroke="#C4B79C" strokeWidth="1" />
 </svg>
 );
 }
@@ -78,7 +78,7 @@ const decadeData = Object.entries(byDecade)
 .sort((a, b) => a[0].localeCompare(b[0]))
 .map(([label, value]) => ({ label, value }));
 const statBox = {
-border: '1px solid #3a2f20',
+border: '1px solid #C4B79C',
 padding: '1.25rem 1.5rem',
 flex: '1 1 140px',
 };
