@@ -1,3 +1,4 @@
+import { parseAiJson } from '../../lib/aijson';
 export async function POST(req: Request) {
 const apiKey = process.env.ANTHROPIC_API_KEY;
 if (!apiKey) return Response.json({ error: 'ANTHROPIC_API_KEY is not configured.' }, { status: 501 });
@@ -25,10 +26,9 @@ body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 8000, messages: [
 if (!response.ok) return Response.json({ error: 'Roster lookup failed.', detail: await response.text() }, { status: 502 });
 const data = await response.json();
 const text = (data.content ?? []).filter((b: any) => b.type === 'text').map((b: any) => b.text).join('\n');
-try {
-const cleaned = text.replace(/```json|```/g, '').trim();
-return Response.json(JSON.parse(cleaned.slice(cleaned.indexOf('{'), cleaned.lastIndexOf('}') + 1)));
-} catch {
-return Response.json({ error: 'Could not parse roster response.', raw: text }, { status: 502 });
+{
+const parsedRaw = parseAiJson(text);
+if (!parsedRaw) return Response.json({ error: 'Could not parse the response.', raw: text.slice(0, 400) }, { status: 502 });
+return Response.json(parsedRaw);
 }
 }

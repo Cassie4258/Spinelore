@@ -1,3 +1,4 @@
+import { parseAiJson } from '../../lib/aijson';
 export async function POST(req: Request) {
 const apiKey = process.env.ANTHROPIC_API_KEY;
 if (!apiKey) return Response.json({ error: 'ANTHROPIC_API_KEY is not configured.' }, { status: 501 });
@@ -11,7 +12,7 @@ const response = await fetch('https://api.anthropic.com/v1/messages', {
 method: 'POST',
 headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
 body: JSON.stringify({
-model: 'claude-sonnet-4-6', max_tokens: 700,
+model: 'claude-sonnet-4-6', max_tokens: 1200,
 messages: [{ role: 'user', content: [
 { type: 'image', source: { type: 'base64', media_type: mediaType.split(';')[0], data: b64 } },
 { type: 'text', text: `This is a photograph of a collectible book. Read it closely and respond with ONLY a JSON object (no fences) with these keys, using an empty string where the information is not visible:

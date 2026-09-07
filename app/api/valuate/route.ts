@@ -1,3 +1,4 @@
+import { parseAiJson } from '../../lib/aijson';
 export async function POST(req: Request) {
 const apiKey = process.env.ANTHROPIC_API_KEY;
 if (!apiKey) return Response.json({ error: 'ANTHROPIC_API_KEY is not configured.' }, { status: 501 });
@@ -29,8 +30,8 @@ After searching, respond with ONLY a JSON object (no markdown fences, no other t
 - "low_estimate": a plain number in USD with no currency symbol, commas, or quotes (e.g. 85, not "$85" or "85.00 USD") — or null if you found no usable comparables
 - "high_estimate": a plain number in USD, same format as above — or null if you found no usable comparables
 - "confidence": "low", "medium", or "high" — low if few or no relevant comparables were found, high if there are multiple solid, closely matching comparables
-- "reasoning": a short paragraph explaining what you found and why you landed on this range
-- "sources": array of objects with "title" and "url" for the listings/comps you used (empty array if none)
+- "reasoning": AT MOST 120 words. Be concise: name the comparables that mattered and how printing, jacket and condition moved the number. Do not list every listing you saw.
+- "sources": at most 5 objects with short "title" and "url"
 Weight these correctly, because they dominate value for collectible books:
 - PRINTING: a stated first printing of a significant 20th-century book is worth many times a later printing of the same year. Do not treat a first printing as an unspecified printing. Conversely a Book Club Edition is worth a small fraction of a trade first.
 - DUST JACKET: for 20th-century firsts the jacket is frequently the majority of the value. A first printing WITH jacket and the same book WITHOUT jacket are not comparable; only compare like with like, and say which you used.
@@ -45,7 +46,7 @@ headers: {
 },
 body: JSON.stringify({
 model: 'claude-sonnet-4-6',
-max_tokens: 2000,
+max_tokens: 4000,
 messages: [{ role: 'user', content: prompt }],
 tools: [{ type: 'web_search_20250305', name: 'web_search' }],
 }),
@@ -59,9 +60,10 @@ const text = (data.content ?? [])
 .filter((b: any) => b.type === 'text')
 .map((b: any) => b.text)
 .join('\n');
-try {
-const cleaned = text.replace(/```json|```/g, '').trim();
-const parsed = JSON.parse(cleaned);
+{
+const parsedRaw = parseAiJson(text);
+if (!parsedRaw) return Response.json({ error: 'Could not parse the response.', raw: text.slice(0, 400) }, { status: 502 });
+const parsed = parsedRaw;
 const toNumber = (v: any) => {
 if (v == null) return null;
 if (typeof v === 'number') return v;
@@ -71,7 +73,5 @@ return isNaN(n) ? null : n;
 parsed.low_estimate = toNumber(parsed.low_estimate);
 parsed.high_estimate = toNumber(parsed.high_estimate);
 return Response.json(parsed);
-} catch {
-return Response.json({ error: 'Could not parse valuation response.', raw: text }, { status: 502 });
 }
 }

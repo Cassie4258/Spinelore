@@ -1,3 +1,4 @@
+import { parseAiJson } from '../../lib/aijson';
 export async function POST(req: Request) {
 const apiKey = process.env.ANTHROPIC_API_KEY;
 if (!apiKey) return Response.json({ error: 'ANTHROPIC_API_KEY is not configured.' }, { status: 501 });
@@ -44,8 +45,8 @@ Respond with ONLY a JSON object (no markdown fences, no other text):
   "low_estimate": plain number in USD (no symbols/commas/quotes) or null,
   "high_estimate": plain number in USD or null,
   "confidence": "low" | "medium" | "high",
-  "reasoning": "short paragraph on what comparables you found and how condition/edition/signature affected the range",
-  "sources": [{"title": "...", "url": "..."}]
+  "reasoning": "at most 100 words on the comparables and how printing, jacket and condition affected the range",
+  "sources": at most 5 of [{"title": "...", "url": "..."}]
 }
 }
 
@@ -61,7 +62,7 @@ const response = await fetch('https://api.anthropic.com/v1/messages', {
 method: 'POST',
 headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
 body: JSON.stringify({
-model: 'claude-sonnet-4-6', max_tokens: 3000,
+model: 'claude-sonnet-4-6', max_tokens: 5000,
 messages: [{ role: 'user', content: prompt }],
 tools: [{ type: 'web_search_20250305', name: 'web_search' }],
 }),
@@ -69,8 +70,10 @@ tools: [{ type: 'web_search_20250305', name: 'web_search' }],
 if (!response.ok) return Response.json({ error: 'Enrichment failed.', detail: await response.text() }, { status: 502 });
 const data = await response.json();
 const text = (data.content ?? []).filter((b: any) => b.type === 'text').map((b: any) => b.text).join('\n');
-try {
-const cleaned = text.replace(/```json|```/g, '').trim();
+{
+const parsedRaw = parseAiJson(text);
+if (!parsedRaw) return Response.json({ error: 'Could not parse the response.', raw: text.slice(0, 400) }, { status: 502 });
+const cleaned = '';
 const parsed = JSON.parse(cleaned.slice(cleaned.indexOf('{'), cleaned.lastIndexOf('}') + 1));
 const num = (v: any) => { if (v == null) return null; if (typeof v === 'number') return v; const n = parseFloat(String(v).replace(/[^0-9.]/g, '')); return isNaN(n) ? null : n; };
 const int = (v: any) => { if (v == null) return null; const n = parseInt(String(v).replace(/[^0-9]/g, '')); return isNaN(n) ? null : n; };
@@ -79,7 +82,5 @@ if (Array.isArray(parsed.groupings)) parsed.groupings = parsed.groupings.map((g:
 else parsed.groupings = [];
 parsed.original_pub_year = int(parsed.original_pub_year);
 return Response.json(parsed);
-} catch {
-return Response.json({ error: 'Could not parse enrichment response.', raw: text }, { status: 502 });
 }
 }

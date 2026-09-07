@@ -1,3 +1,4 @@
+import { parseAiJson } from '../../lib/aijson';
 export async function POST(req: Request) {
 const apiKey = process.env.ANTHROPIC_API_KEY;
 if (!apiKey) return Response.json({ error: 'ANTHROPIC_API_KEY is not configured.' }, { status: 501 });
@@ -19,13 +20,13 @@ Search the web and write a collector's briefing on it. Respond with ONLY a JSON 
 - "history": one paragraph on the publication and reception history of the work.
 - "edition_notes": one paragraph specifically about THIS publisher's edition — what distinguishes it (illustrator, translator, binding, series membership, print run, issue points, known variants, anything a collector should know). If you cannot find edition-specific information, say so plainly rather than guessing.
 - "collector_significance": one of "Low", "Moderate", "Notable", "High", "Exceptional", with a one-sentence justification in "significance_reason".
-- "sources": array of {"title","url"} you relied on.
+- "sources": at most 6 objects of {"title","url"}. Keep each of the prose fields under 120 words.
 Do not fabricate facts, print runs, or issue points. Distinguish clearly between what is documented and what is inferred.`;
 const response = await fetch('https://api.anthropic.com/v1/messages', {
 method: 'POST',
 headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
 body: JSON.stringify({
-model: 'claude-sonnet-4-6', max_tokens: 2500,
+model: 'claude-sonnet-4-6', max_tokens: 3000,
 messages: [{ role: 'user', content: prompt }],
 tools: [{ type: 'web_search_20250305', name: 'web_search' }],
 }),
@@ -33,11 +34,11 @@ tools: [{ type: 'web_search_20250305', name: 'web_search' }],
 if (!response.ok) return Response.json({ error: 'History request failed.', detail: await response.text() }, { status: 502 });
 const data = await response.json();
 const text = (data.content ?? []).filter((b: any) => b.type === 'text').map((b: any) => b.text).join('\n');
-try {
-const cleaned = text.replace(/```json|```/g, '').trim();
+{
+const parsedRaw = parseAiJson(text);
+if (!parsedRaw) return Response.json({ error: 'Could not parse the response.', raw: text.slice(0, 400) }, { status: 502 });
+const cleaned = '';
 const start = cleaned.indexOf('{'); const end = cleaned.lastIndexOf('}');
 return Response.json(JSON.parse(cleaned.slice(start, end + 1)));
-} catch {
-return Response.json({ error: 'Could not parse history response.', raw: text }, { status: 502 });
 }
 }
