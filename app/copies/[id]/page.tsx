@@ -1,14 +1,15 @@
 import { supabase } from '../../lib/supabase';
 import DeleteButton from './DeleteButton';
+import Editor from './Editor';
 export const dynamic = 'force-dynamic';
 async function getCopy(id: string): Promise<any> {
 const { data, error } = await supabase
 .from('copies')
 .select(`
-id, signed, inscribed, dust_jacket, slipcase, condition_book, condition_jacket, defects,
+id, ai_notes, signed, inscribed, dust_jacket, slipcase, condition_book, condition_jacket, defects,
 provenance, purchase_date, purchase_source, purchase_price, notes, created_at,
-editions ( work_id, publisher, pub_place, pub_year, edition_label, printing_number, issue_state, isbn, binding, format,
-works ( title, subtitle, genre, original_pub_year, work_contributors ( role, authors ( name ) ) ) ),
+editions ( id, work_id, publisher, pub_place, pub_year, edition_label, printing_number, issue_state, isbn, binding, format,
+works ( id, title, subtitle, genre, original_pub_year, work_contributors ( role, authors ( id, name ) ) ) ),
 copy_photos ( url, photo_type ),
 value_estimates ( low_estimate, high_estimate, confidence, reasoning, estimated_at ),
 locations ( path )
@@ -35,6 +36,7 @@ if (!c) return <p style={{ color: '#8a7a5c' }}>This volume could not be found.</
 const ed = c.editions ?? {};
 const w = ed.works ?? {};
 const contributors = (w.work_contributors ?? []) as any[];
+const authorEntry = contributors.find((x: any) => x.role === 'author');
 const byRole = (r: string) => contributors.filter(x => x.role === r).map(x => x.authors?.name).filter(Boolean).join(', ');
 const workId = ed.work_id;
 const series = await getSeries(workId);
@@ -56,17 +58,13 @@ return (
 ))}
 </div>
 )}
-{latest && (
-<div style={{ border: '1px solid #3a2f20', padding: '1.25rem', marginBottom: '2rem' }}>
-<div style={label}>ESTIMATED VALUE</div>
-<div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '1.6rem', color: '#e8dcc0' }}>
-{latest.low_estimate != null && latest.high_estimate != null ? `${fmt(latest.low_estimate)} – ${fmt(latest.high_estimate)}` : fmt(latest.low_estimate ?? latest.high_estimate)}
 <span style={{ fontSize: '0.7rem', color: '#8a7a5c', marginLeft: '0.75rem', letterSpacing: '0.05em' }}>CONFIDENCE: {String(latest.confidence ?? '').toUpperCase()}</span>
 </div>
 {latest.reasoning && <p style={{ color: '#8a7a5c', fontSize: '0.85rem', lineHeight: 1.5, marginTop: '0.75rem', whiteSpace: 'pre-wrap' }}>{latest.reasoning}</p>}
 <div style={{ color: '#5c5040', fontSize: '0.75rem', marginTop: '0.5rem' }}>Estimated {new Date(latest.estimated_at).toLocaleDateString()}</div>
 </div>
 )}
+<Editor copy={c} edition={ed} work={w} authorId={authorEntry?.authors?.id ?? null} authorName={authorEntry?.authors?.name ?? ''} latest={latest ?? null} aiNotes={c.ai_notes ?? null} />
 {series?.sets && (
 <div style={{ border: '1px solid #3a2f20', padding: '1.25rem', marginBottom: '2rem' }}>
 <div style={label}>SERIES / SET</div>
