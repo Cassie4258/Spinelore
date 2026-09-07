@@ -58,12 +58,6 @@ return (
 ))}
 </div>
 )}
-<span style={{ fontSize: '0.7rem', color: '#8a7a5c', marginLeft: '0.75rem', letterSpacing: '0.05em' }}>CONFIDENCE: {String(latest.confidence ?? '').toUpperCase()}</span>
-</div>
-{latest.reasoning && <p style={{ color: '#8a7a5c', fontSize: '0.85rem', lineHeight: 1.5, marginTop: '0.75rem', whiteSpace: 'pre-wrap' }}>{latest.reasoning}</p>}
-<div style={{ color: '#5c5040', fontSize: '0.75rem', marginTop: '0.5rem' }}>Estimated {new Date(latest.estimated_at).toLocaleDateString()}</div>
-</div>
-)}
 <Editor copy={c} edition={ed} work={w} authorId={authorEntry?.authors?.id ?? null} authorName={authorEntry?.authors?.name ?? ''} latest={latest ?? null} aiNotes={c.ai_notes ?? null} />
 {series?.sets && (
 <div style={{ border: '1px solid #3a2f20', padding: '1.25rem', marginBottom: '2rem' }}>
