@@ -1,6 +1,7 @@
 import { supabase } from '../../lib/supabase';
 import DeleteButton from './DeleteButton';
 import Editor from './Editor';
+import PhotoManager from './PhotoManager';
 import { KIND_LABEL, seqLabel } from '../../lib/groupings';
 export const dynamic = 'force-dynamic';
 async function getCopy(id: string): Promise<any> {
@@ -63,15 +64,7 @@ return (
 <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 500, fontSize: '2rem', color: '#2E2A22', margin: '1rem 0 0.25rem' }}>{w.title ?? 'Untitled'}</h2>
 {w.subtitle && <p style={{ color: '#4A4335', fontStyle: 'italic', margin: '0 0 0.5rem' }}>{w.subtitle}</p>}
 <p style={{ color: '#6E6552', margin: '0 0 2rem' }}>{[byRole('author'), ed.publisher, ed.pub_year].filter(Boolean).join(' · ')}</p>
-{c.copy_photos?.length > 0 && (
-<div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '2rem' }}>
-{c.copy_photos.map((p: any, i: number) => (
-<a key={i} href={p.url} target="_blank" rel="noopener noreferrer">
-<img src={p.url} alt={p.photo_type} style={{ width: 110, height: 150, objectFit: 'cover', border: '1px solid #C4B79C' }} />
-</a>
-))}
-</div>
-)}
+<PhotoManager copyId={c.id} photos={c.copy_photos ?? []} edition={ed} work={w} />
 <Editor copy={c} edition={ed} work={w} authorId={authorEntry?.authors?.id ?? null} authorName={authorEntry?.authors?.name ?? ''} illustratorId={illEntry?.authors?.id ?? null} illustratorName={illEntry?.authors?.name ?? ''} latest={latest ?? null} aiNotes={c.ai_notes ?? null} setContext={setContext} stale={!!(latest && c.updated_at && new Date(c.updated_at).getTime() > new Date(latest.estimated_at).getTime() + 60000)} />
 {series.length > 0 && (
 <div style={{ border: '1px solid #C4B79C', padding: '1.25rem', marginBottom: '2rem' }}>
