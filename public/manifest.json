@@ -1,0 +1,12 @@
+{
+  "name": "Spinelore",
+  "short_name": "Spinelore",
+  "description": "A private archive for a collected library.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#E8E0D0",
+  "theme_color": "#2E4A38",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
