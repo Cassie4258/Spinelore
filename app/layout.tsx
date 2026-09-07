@@ -82,6 +82,7 @@ borderBottom: '1px solid #3a2f20', fontSize: '0.85rem',
 }}>
 <a href="/" style={{ color: '#c4b490', textDecoration: 'none' }}>Library</a>
 <a href="/browse" style={{ color: '#c4b490', textDecoration: 'none' }}>Browse</a>
+<a href="/collections" style={{ color: '#c4b490', textDecoration: 'none' }}>Collections</a>
 <a href="/stats" style={{ color: '#c4b490', textDecoration: 'none' }}>Stats</a>
 </nav>
 <main style={{ maxWidth: 700, margin: '0 auto', padding: '2rem 1.5rem 4rem' }}>

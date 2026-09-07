@@ -27,10 +27,19 @@ return `${fmt(latest.low_estimate)}–${fmt(latest.high_estimate)}`;
 }
 return fmt(latest.low_estimate ?? latest.high_estimate);
 }
-export default async function Home() {
-const copies = await getCopies();
+export default async function Home({ searchParams }: { searchParams: { q?: string } }) {
+const all = await getCopies();
+const q = (searchParams.q ?? '').toLowerCase().trim();
+const copies = q ? all.filter((c: any) => {
+const t = (c.editions?.works?.title ?? '').toLowerCase();
+const p = (c.editions?.publisher ?? '').toLowerCase();
+return t.includes(q) || p.includes(q);
+}) : all;
 return (
-<div>
+<form action="/" method="get" style={{ marginBottom: '1.25rem' }}>
+<input name="q" defaultValue={q} placeholder="Search the archive by title or publisher…"
+style={{ width: '100%', padding: '0.6rem 0.75rem', border: '1px solid #3a2f20', background: '#1a1410', color: '#e8dcc0', fontFamily: "'EB Garamond', serif", fontSize: '1rem', boxSizing: 'border-box', outline: 'none' }} />
+</form>
 <p
 style={{
 color: '#8a7a5c',
@@ -41,7 +50,7 @@ borderBottom: '1px solid #3a2f20',
 paddingBottom: '0.75rem',
 }}
 >
-{copies.length} {copies.length === 1 ? 'VOLUME' : 'VOLUMES'} IN THE ARCHIVE
+{copies.length} {copies.length === 1 ? 'VOLUME' : 'VOLUMES'}{q ? ` MATCHING “${q.toUpperCase()}”` : ' IN THE ARCHIVE'}
 </p>
 {copies.length === 0 && (
 <div

@@ -69,6 +69,35 @@ await supabase.from('value_estimates').insert({ copy_id: copy.id, low_estimate: 
 router.refresh();
 } catch (e: any) { setMsg(e.message); } finally { setBusy(null); }
 }
+async function reEnrich() {
+setBusy('enrich'); setMsg(null);
+try {
+const res = await fetch('/api/enrich', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title: f.title, author: f.author, illustrator: f.illustrator, publisher: f.publisher, pub_year: f.pub_year, binding: f.binding, isbn: f.isbn, condition_book: f.condition_book, signed: f.signed }) });
+const d = await res.json();
+if (!res.ok) throw new Error(d.error || 'Enrichment failed');
+const updates: any = {};
+if (!work.genre && d.genre) updates.genre = d.genre;
+if (!work.original_pub_year && d.original_pub_year) updates.original_pub_year = d.original_pub_year;
+if (Object.keys(updates).length) await supabase.from('works').update(updates).eq('id', work.id);
+if (d.series?.is_part_of_series && d.series.series_name) {
+const full = d.series.series_publisher ? `${d.series.series_publisher} — ${d.series.series_name}` : d.series.series_name;
+let { data: existing } = await supabase.from('sets').select('id').eq('name', full).maybeSingle();
+let setId = existing?.id;
+if (!setId) {
+const { data: ns } = await supabase.from('sets').insert({ name: full, publisher: d.series.series_publisher ?? null, description: d.series.reasoning }).select().single();
+setId = ns?.id;
+}
+if (setId) {
+const { data: already } = await supabase.from('set_members').select('set_id').eq('set_id', setId).eq('work_id', work.id).maybeSingle();
+if (!already) await supabase.from('set_members').insert({ set_id: setId, work_id: work.id, edition_id: edition.id, sequence_number: d.series.sequence_number });
+}
+}
+if (d.valuation && (d.valuation.low_estimate != null || d.valuation.high_estimate != null)) {
+await supabase.from('value_estimates').insert({ copy_id: copy.id, low_estimate: d.valuation.low_estimate, high_estimate: d.valuation.high_estimate, confidence: d.valuation.confidence, reasoning: d.valuation.reasoning + ((d.valuation.sources ?? []).length ? '\n\nSources: ' + d.valuation.sources.map((x: any) => x.url).join(', ') : '') });
+}
+router.refresh();
+} catch (e: any) { setMsg(e.message); } finally { setBusy(null); }
+}
 async function generateHistory() {
 setBusy('history'); setMsg(null);
 try {
@@ -141,7 +170,10 @@ return (
 <button type="button" style={{ ...btn, marginTop: '1rem' }} onClick={generateHistory} disabled={busy === 'history'}>{busy === 'history' ? 'Researching…' : aiNotes ? 'Regenerate history' : 'Generate history & edition notes'}</button>
 </div>
 {mode === 'view' ? (
+<div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
 <button type="button" style={btn} onClick={() => setMode('edit')}>Edit details</button>
+<button type="button" style={btn} onClick={reEnrich} disabled={busy === 'enrich'}>{busy === 'enrich' ? 'Researching…' : 'Fill gaps with AI research'}</button>
+</div>
 ) : (
 <div style={section}>
 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>

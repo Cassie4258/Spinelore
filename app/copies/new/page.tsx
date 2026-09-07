@@ -42,6 +42,7 @@ series_publisher: string | null; sequence_number: number | null;
 confidence: string; reasoning: string;
 } | null>(null);
 const [enrichDone, setEnrichDone] = useState(false);
+const [dupes, setDupes] = useState<any[]>([]);
 const [form, setForm] = useState({
 title: '',
 author: '',
@@ -153,6 +154,13 @@ setError('Valuation request failed.');
 setValuing(false);
 }
 }
+async function checkDupes(title: string) {
+if (!title.trim()) { setDupes([]); return; }
+const { data } = await supabase.from('copies').select('id, condition_book, editions ( publisher, pub_year, works ( title ) )');
+const norm = (x: string) => (x || '').toLowerCase().replace(/^(the|a|an)\s+/, '').replace(/[^a-z0-9 ]/g, '').trim();
+const hits = (data ?? []).filter((c: any) => norm(c.editions?.works?.title) === norm(title));
+setDupes(hits);
+}
 async function runEnrich(f0: any) {
 setEnriching(true);
 try {
@@ -179,6 +187,7 @@ return next;
 }
 useEffect(() => {
 if (!enrichDone && !enriching && form.title.trim() && form.publisher.trim()) runEnrich(form);
+if (form.title.trim()) checkDupes(form.title);
 }, [form.title, form.publisher, enrichDone, enriching]);
 async function handleSubmit(e: React.FormEvent) {
 e.preventDefault();
@@ -334,6 +343,19 @@ Filled from photograph: {aiFilled.join(', ')} — please verify before saving.
 </div>
 )}
 </div>
+{dupes.length > 0 && (
+<div style={{ border: '1px solid #6b5524', background: '#241d10', padding: '1rem', fontSize: '0.9rem' }}>
+<div style={{ color: '#d8b24f', marginBottom: '0.5rem' }}>You may already own this — {dupes.length} {dupes.length === 1 ? 'copy' : 'copies'} of this title in the archive:</div>
+{dupes.map((d: any) => (
+<div key={d.id} style={{ marginBottom: '0.25rem' }}>
+<a href={`/copies/${d.id}`} style={{ color: '#c4b490' }}>
+{[d.editions?.publisher, d.editions?.pub_year, d.condition_book].filter(Boolean).join(' · ') || 'existing copy'}
+</a>
+</div>
+))}
+<div style={{ color: '#8a7a5c', fontSize: '0.8rem', marginTop: '0.5rem' }}>Multiple copies are fine — carry on if this is a different edition or a second copy.</div>
+</div>
+)}
 <div>
 <label style={labelStyle}>TITLE *</label>
 <input style={inputStyle} required value={form.title}
