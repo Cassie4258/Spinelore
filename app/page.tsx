@@ -77,16 +77,15 @@ gap: '1rem',
 }}
 >
 <div>
-<div
-style={{
+<a href={`/copies/${c.id}`} style={{
 fontFamily: "'Cormorant Garamond', serif",
 fontSize: '1.35rem',
 fontWeight: 500,
 color: '#e8dcc0',
-}}
->
+textDecoration: 'none',
+}}>
 {c.editions?.works?.title ?? 'Untitled'}
-</div>
+</a>
 <div style={{ color: '#8a7a5c', fontSize: '0.9rem', marginTop: '0.3rem' }}>
 {[c.editions?.publisher, c.editions?.pub_year].filter(Boolean).join(' · ')}
 {c.signed && '  ·  signed'}

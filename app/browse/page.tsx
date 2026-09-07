@@ -106,9 +106,9 @@ padding: '1rem 0 1rem 1.25rem',
 display: 'flex', justifyContent: 'space-between', gap: '1rem',
 }}>
 <div>
-<div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '1.2rem', color: '#e8dcc0' }}>
+<a href={`/copies/${c.id}`} style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '1.2rem', color: '#e8dcc0', textDecoration: 'none' }}>
 {c.editions?.works?.title ?? 'Untitled'}
-</div>
+</a>
 <div style={{ color: '#8a7a5c', fontSize: '0.85rem', marginTop: '0.2rem' }}>
 {[authorName(c), c.editions?.publisher, c.editions?.pub_year].filter(Boolean).join(' · ')}
 {c.signed && '  ·  signed'}
